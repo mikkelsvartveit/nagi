@@ -1,6 +1,11 @@
 /// <reference path="../pb_data/types.d.ts" />
 migrate(
   (app) => {
+    const collection = app.findCollectionByNameOrId("pbc_710432678");
+
+    return app.delete(collection);
+  },
+  (app) => {
     const collection = new Collection({
       createRule: "",
       deleteRule: "",
@@ -78,10 +83,5 @@ migrate(
     });
 
     return app.save(collection);
-  },
-  (app) => {
-    const collection = app.findCollectionByNameOrId("pbc_710432678");
-
-    return app.delete(collection);
   },
 );

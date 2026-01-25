@@ -43,6 +43,7 @@ src/
 - Use the `$lib` alias for all local imports
 - Don't write PocketBase migrations manually. Instead, provide instructions for what I need to change in the PocketBase UI.
 - PocketBase types are auto-generated - run `pnpm run typegen` after schema changes
+- Before finishing a task, always run `pnpm run format && pnpm run check && pnpm run lint` to check for issues.
 
 ## MCP Servers
 

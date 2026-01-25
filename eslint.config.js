@@ -33,6 +33,7 @@ export default [
       ".svelte-kit/",
       "dist/",
       "pocketbase/pb_data/",
+      "pocketbase/pb_migrations/",
       "src/lib/pocketbase-typegen.ts",
       "src/lib/components/ui/**",
     ],
