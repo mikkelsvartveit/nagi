@@ -21,16 +21,12 @@ export const load: PageLoad = async () => {
     requestKey: "feedFollows",
   });
 
-  // If not following anyone, return empty feed
-  if (follows.length === 0) {
-    return { posts: [] as PostWithUser[] };
-  }
-
-  // Build filter for posts from followed users
+  // Build filter for posts from followed users + own posts
   const followedUserIds = follows.map((f) => f.following);
-  const userFilter = followedUserIds.map((id) => `user = "${id}"`).join(" || ");
+  const allUserIds = [user.id, ...followedUserIds];
+  const userFilter = allUserIds.map((id) => `user = "${id}"`).join(" || ");
 
-  // Fetch posts from followed users
+  // Fetch posts from followed users and self
   const posts = await pb.collection("posts").getFullList<PostWithUser>({
     filter: userFilter,
     sort: "-created",
