@@ -7,6 +7,7 @@
 
   let { data, children } = $props();
   const user = $derived(data.user);
+  const pendingRequestsCount = $derived(data.pendingRequestsCount);
   const currentPath = $derived($page.url.pathname);
 
   // Redirect to login if not authenticated
@@ -40,9 +41,9 @@
 {#if user}
   <div class="flex min-h-dvh flex-col">
     <!-- Header -->
-    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
     <header
       onclick={handleHeaderClick}
+      role="presentation"
       class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 cursor-pointer border-b backdrop-blur"
     >
       <div class="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
@@ -50,9 +51,38 @@
           <img src="/favicon.png" alt="Nagi logo" class="h-8 w-8" />
           <span class="font-semibold">Nagi</span>
         </div>
-        <Button variant="ghost" size="sm" onclick={handleLogout}>
-          Sign out
-        </Button>
+        <div class="flex items-center gap-2">
+          <a
+            href={resolve("/requests")}
+            class="text-muted-foreground hover:text-foreground relative p-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-5 w-5"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <line x1="19" x2="19" y1="8" y2="14" />
+              <line x1="22" x2="16" y1="11" y2="11" />
+            </svg>
+            {#if pendingRequestsCount > 0}
+              <span
+                class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-medium text-white"
+              >
+                {pendingRequestsCount > 99 ? "99+" : pendingRequestsCount}
+              </span>
+            {/if}
+          </a>
+          <Button variant="ghost" size="sm" onclick={handleLogout}>
+            Sign out
+          </Button>
+        </div>
       </div>
     </header>
 
@@ -86,6 +116,27 @@
             <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
           <span class="text-xs">Feed</span>
+        </a>
+        <a
+          href={resolve("/search")}
+          class="flex flex-col items-center gap-1 {currentPath === '/search/'
+            ? 'text-primary'
+            : 'text-muted-foreground'}"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-6 w-6"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <span class="text-xs">Search</span>
         </a>
         <a
           href={resolve("/create")}

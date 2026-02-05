@@ -1,0 +1,225 @@
+<script lang="ts">
+  import { invalidateAll } from "$app/navigation";
+  import { pb } from "$lib/pocketbase";
+  import { Button } from "$lib/components/ui/button";
+  import PostCard from "$lib/components/PostCard.svelte";
+  import type {
+    FollowsResponse,
+    PostsResponse,
+    UsersResponse,
+  } from "$lib/pocketbase-typegen";
+
+  type PostWithUser = PostsResponse<{ user: UsersResponse }>;
+
+  let { data } = $props();
+  const profileUser = $derived(data.profileUser as UsersResponse | null);
+  const posts = $derived(data.posts as PostWithUser[]);
+  const isOwnProfile = $derived(data.isOwnProfile);
+  const serverFollowStatus = $derived(
+    data.followStatus as FollowsResponse | null,
+  );
+
+  // Local state for optimistic updates: undefined = use server, null = explicitly unfollowed
+  let localFollowStatus = $state<FollowsResponse | null | undefined>(undefined);
+
+  let loading = $state(false);
+
+  // Reset local state when server data changes
+  $effect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    serverFollowStatus; // Track dependency
+    localFollowStatus = undefined;
+  });
+
+  // Use local state for optimistic updates, fallback to server data
+  const effectiveFollowStatus = $derived(
+    localFollowStatus === undefined ? serverFollowStatus : localFollowStatus,
+  );
+
+  function getAvatarUrl() {
+    if (!profileUser?.avatar) return null;
+    return pb.files.getURL(profileUser, profileUser.avatar, {
+      thumb: "320x320",
+    });
+  }
+
+  async function handleFollow() {
+    if (!profileUser) return;
+    loading = true;
+
+    try {
+      // Create a follow request
+      const newFollow = await pb.collection("follows").create<FollowsResponse>({
+        follower: pb.authStore.model?.id,
+        following: profileUser.id,
+        accepted: profileUser.isPublic ? true : false, // Auto-accept if profile is public
+      });
+      localFollowStatus = newFollow;
+      await invalidateAll();
+    } catch (error) {
+      console.error("Failed to follow:", error);
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function handleUnfollow() {
+    if (!effectiveFollowStatus) return;
+    loading = true;
+
+    try {
+      await pb.collection("follows").delete(effectiveFollowStatus.id);
+      localFollowStatus = null;
+      await invalidateAll();
+    } catch (error) {
+      console.error("Failed to unfollow:", error);
+    } finally {
+      loading = false;
+    }
+  }
+
+  function getFollowButtonText() {
+    if (!effectiveFollowStatus) return "Follow";
+    if (effectiveFollowStatus.accepted) return "Following";
+    return "Requested";
+  }
+
+  function getFollowButtonVariant(): "default" | "outline" | "secondary" {
+    if (!effectiveFollowStatus) return "default";
+    return "secondary";
+  }
+
+  const canViewPosts = $derived(
+    isOwnProfile ||
+      profileUser?.isPublic ||
+      (effectiveFollowStatus && effectiveFollowStatus.accepted),
+  );
+</script>
+
+{#if !profileUser}
+  <div class="py-20 text-center">
+    <h1 class="text-xl font-semibold">User not found</h1>
+    <p class="text-muted-foreground mt-2">
+      The user you're looking for doesn't exist.
+    </p>
+  </div>
+{:else}
+  <div class="pt-6 text-center">
+    <div
+      class="bg-muted mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full"
+    >
+      {#if getAvatarUrl()}
+        <img
+          src={getAvatarUrl()}
+          alt="Profile"
+          class="h-full w-full object-cover"
+        />
+      {:else}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-muted-foreground h-10 w-10"
+        >
+          <circle cx="12" cy="8" r="5" />
+          <path d="M20 21a8 8 0 0 0-16 0" />
+        </svg>
+      {/if}
+    </div>
+    <h1 class="text-xl font-semibold">
+      {profileUser.name || "@" + profileUser.username}
+    </h1>
+    <p class="text-muted-foreground mt-1 text-sm">
+      {profileUser.name ? "@" + profileUser.username : ""}
+    </p>
+
+    {#if !isOwnProfile}
+      <div class="mt-4">
+        {#if effectiveFollowStatus}
+          <Button
+            variant={getFollowButtonVariant()}
+            size="sm"
+            onclick={handleUnfollow}
+            disabled={loading}
+          >
+            {getFollowButtonText()}
+          </Button>
+        {:else}
+          <Button size="sm" onclick={handleFollow} disabled={loading}>
+            Follow
+          </Button>
+        {/if}
+      </div>
+    {/if}
+  </div>
+
+  <!-- Stats -->
+  <div class="mt-6 flex justify-center gap-8">
+    <div class="text-center">
+      <p class="text-lg font-semibold">{posts.length}</p>
+      <p class="text-muted-foreground text-sm">Posts</p>
+    </div>
+  </div>
+
+  <!-- Posts -->
+  {#if !canViewPosts}
+    <div class="bg-card mt-8 rounded-xl border p-8 text-center">
+      <div
+        class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-muted-foreground h-6 w-6"
+        >
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      </div>
+      <h2 class="font-medium">This account is private</h2>
+      <p class="text-muted-foreground mt-1 text-sm">
+        Follow this account to see their posts
+      </p>
+    </div>
+  {:else if posts.length === 0}
+    <div class="bg-card mt-8 rounded-xl border p-8 text-center">
+      <div
+        class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-muted-foreground h-6 w-6"
+        >
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+        </svg>
+      </div>
+      <h2 class="font-medium">No posts yet</h2>
+      <p class="text-muted-foreground mt-1 text-sm">
+        This user hasn't posted anything yet
+      </p>
+    </div>
+  {:else}
+    <div class="mt-10 space-y-10">
+      {#each posts as post (post.id)}
+        <PostCard {post} />
+      {/each}
+    </div>
+  {/if}
+{/if}

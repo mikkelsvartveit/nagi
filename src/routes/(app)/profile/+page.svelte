@@ -1,7 +1,9 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
+  import { resolve } from "$app/paths";
   import { pb } from "$lib/pocketbase";
   import PostCard from "$lib/components/PostCard.svelte";
+  import { Switch } from "$lib/components/ui/switch";
   import type { PostsResponse, UsersResponse } from "$lib/pocketbase-typegen";
 
   type PostWithUser = PostsResponse<{ user: UsersResponse }>;
@@ -9,9 +11,12 @@
   let { data } = $props();
   const user = $derived(data.user);
   const posts = $derived(data.posts as PostWithUser[]);
+  const followersCount = $derived(data.followersCount);
+  const followingCount = $derived(data.followingCount);
 
   let fileInput: HTMLInputElement | undefined = $state();
   let uploading = $state(false);
+  let updatingPrivacy = $state(false);
 
   function getAvatarUrl() {
     if (!user?.avatar) return null;
@@ -34,6 +39,20 @@
       console.error("Failed to upload avatar:", error);
     } finally {
       uploading = false;
+    }
+  }
+
+  async function handlePrivacyToggle(checked: boolean) {
+    if (!user) return;
+    updatingPrivacy = true;
+
+    try {
+      await pb.collection("users").update(user.id, { isPublic: checked });
+      await invalidateAll();
+    } catch (error) {
+      console.error("Failed to update privacy setting:", error);
+    } finally {
+      updatingPrivacy = false;
     }
   }
 </script>
@@ -129,6 +148,31 @@
   <div class="text-center">
     <p class="text-lg font-semibold">{posts.length}</p>
     <p class="text-muted-foreground text-sm">Posts</p>
+  </div>
+  <a href={resolve("/profile/followers")} class="text-center hover:opacity-70">
+    <p class="text-lg font-semibold">{followersCount}</p>
+    <p class="text-muted-foreground text-sm">Followers</p>
+  </a>
+  <a href={resolve("/profile/following")} class="text-center hover:opacity-70">
+    <p class="text-lg font-semibold">{followingCount}</p>
+    <p class="text-muted-foreground text-sm">Following</p>
+  </a>
+</div>
+
+<!-- Settings -->
+<div class="bg-card mt-6 rounded-xl border p-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="font-medium">Public profile</p>
+      <p class="text-muted-foreground text-sm">
+        Anyone can follow you without approval
+      </p>
+    </div>
+    <Switch
+      checked={user?.isPublic ?? false}
+      onCheckedChange={handlePrivacyToggle}
+      disabled={updatingPrivacy}
+    />
   </div>
 </div>
 
