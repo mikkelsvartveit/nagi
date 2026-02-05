@@ -21,13 +21,29 @@
     await invalidateAll();
     goto(resolve("/login"));
   };
+
+  function handleHeaderClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    // Don't scroll if clicking on a button or link
+    if (target.closest("button") || target.closest("a")) {
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function getAvatarUrl() {
+    if (!user?.avatar) return null;
+    return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
+  }
 </script>
 
 {#if user}
   <div class="flex min-h-dvh flex-col">
     <!-- Header -->
+    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
     <header
-      class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b backdrop-blur"
+      onclick={handleHeaderClick}
+      class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 cursor-pointer border-b backdrop-blur"
     >
       <div class="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
         <div class="flex items-center gap-2">
@@ -99,20 +115,31 @@
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-6 w-6"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="10" r="3" />
-            <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
-          </svg>
+          {#if getAvatarUrl()}
+            <img
+              src={getAvatarUrl()}
+              alt="Profile"
+              class="h-6 w-6 rounded-full object-cover {currentPath ===
+              '/profile/'
+                ? 'ring-primary ring-2'
+                : ''}"
+            />
+          {:else}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-6 w-6"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="10" r="3" />
+              <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
+            </svg>
+          {/if}
           <span class="text-xs">Profile</span>
         </a>
       </div>

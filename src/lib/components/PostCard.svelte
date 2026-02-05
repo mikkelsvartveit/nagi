@@ -54,6 +54,11 @@
     }
   }
 
+  function getAvatarUrl() {
+    if (!postUser?.avatar) return null;
+    return pb.files.getURL(postUser, postUser.avatar, { thumb: "100x100" });
+  }
+
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
@@ -66,20 +71,30 @@
 <article class="space-y-3">
   <!-- Header: User info -->
   <div class="flex items-center gap-3">
-    <div class="bg-muted flex h-9 w-9 items-center justify-center rounded-full">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-muted-foreground h-4 w-4"
-      >
-        <circle cx="12" cy="8" r="5" />
-        <path d="M20 21a8 8 0 0 0-16 0" />
-      </svg>
+    <div
+      class="bg-muted flex h-9 w-9 items-center justify-center overflow-hidden rounded-full"
+    >
+      {#if getAvatarUrl()}
+        <img
+          src={getAvatarUrl()}
+          alt={postUser?.username || "User"}
+          class="h-full w-full object-cover"
+        />
+      {:else}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-muted-foreground h-4 w-4"
+        >
+          <circle cx="12" cy="8" r="5" />
+          <path d="M20 21a8 8 0 0 0-16 0" />
+        </svg>
+      {/if}
     </div>
 
     <div class="min-w-0 flex-1">
