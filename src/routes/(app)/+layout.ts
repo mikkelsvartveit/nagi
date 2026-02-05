@@ -1,6 +1,8 @@
 import { pb } from "$lib/pocketbase";
 import type { LayoutLoad } from "./$types";
 
+export const prerender = false;
+
 export const load: LayoutLoad = async () => {
   const user = pb?.authStore?.model;
 
