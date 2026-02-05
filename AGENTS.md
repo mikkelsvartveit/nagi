@@ -41,7 +41,7 @@ src/
 - SvelteKit is running in SPA mode. Never use server-side features of SvelteKit.
 - Use shadcn-svelte for UI components. You can install new components with `pnpm dlx shadcn-svelte@latest add <component>`
 - Use the `$lib` alias for all local imports
-- Don't write PocketBase migrations manually. Instead, provide instructions for what I need to change in the PocketBase UI.
+- Don't write PocketBase migrations manually. Instead, provide instructions for what I need to change in the PocketBase UI, including API rules/permissions.
 - PocketBase types are auto-generated - run `pnpm run typegen` after schema changes
 - Before finishing a task, always run `pnpm run format && pnpm run check && pnpm run lint` to check for issues.
 
@@ -55,7 +55,7 @@ For looking up documentation for frameworks and libraries. Always use this when 
 
 ### Chrome DevTools MCP
 
-For controlling the Chrome browser. When working with UI, use this to test your work in the browser before finishing the task. Also use the take_screenshot tool to verify the visual design of your work. If you find design issues, improve it before finishing the task.
+For controlling the Chrome browser. When working with UI, you can use this to test your work in the browser before finishing the task. Also use the take_screenshot tool to verify the visual design of your work. If you find design issues, improve it before finishing the task. ONLY use this MCP server if explicitly instructed to do it.
 
 ### Svelte MCP server
 

@@ -5,9 +5,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "install:pocketbase": "node scripts/pocketbase-install.js",
-    "dev:sveltekit": "pnpm run typegen && vite dev",
+    "dev:sveltekit": "pnpm run typegen && vite dev --host",
     "dev:pocketbase": "cd pocketbase && ./pocketbase serve",
-    "dev": "pnpm run '/^dev:.*/'",
+    "dev": "pnpm run --parallel '/^dev:.*/'",
     "build": "pnpm check && vite build",
     "preview": "vite preview",
     "typegen": "pocketbase-typegen --db ./pocketbase/pb_data/data.db --out src/lib/pocketbase-typegen.ts",

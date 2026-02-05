@@ -31,24 +31,7 @@
     >
       <div class="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
         <div class="flex items-center gap-2">
-          <div
-            class="bg-primary flex h-8 w-8 items-center justify-center rounded-lg"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="text-primary-foreground h-4 w-4"
-            >
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <circle cx="9" cy="9" r="2" />
-              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-            </svg>
-          </div>
+          <img src="/favicon.png" alt="Nagi logo" class="h-8 w-8" />
           <span class="font-semibold">Nagi</span>
         </div>
         <Button variant="ghost" size="sm" onclick={handleLogout}>
@@ -59,7 +42,7 @@
 
     <!-- Main Content -->
     <main class="flex-1">
-      <div class="mx-auto max-w-lg px-4 py-8">
+      <div class="mx-auto max-w-lg px-4 pt-3 pb-12">
         {@render children()}
       </div>
     </main>
