@@ -119,7 +119,7 @@ export type UsersRecord = {
 	email: string
 	emailVisibility?: boolean
 	id: string
-	isPublic?: boolean
+	isPublic: boolean
 	name?: string
 	password: string
 	tokenKey: string

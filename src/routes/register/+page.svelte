@@ -91,6 +91,26 @@
   };
 </script>
 
+<svelte:head>
+  <title>Create account - Nagi</title>
+  <meta
+    name="description"
+    content="Create a Nagi account and join the back-to-basics social media platform"
+  />
+  <meta property="og:title" content="Create account - Nagi" />
+  <meta
+    property="og:description"
+    content="Create a Nagi account and join the back-to-basics social media platform"
+  />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Create account - Nagi" />
+  <meta
+    name="twitter:description"
+    content="Create a Nagi account and join the back-to-basics social media platform"
+  />
+</svelte:head>
+
 <div class="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
   <div class="w-full max-w-sm">
     <!-- Logo/Brand -->

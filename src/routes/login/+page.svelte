@@ -34,6 +34,17 @@
   };
 </script>
 
+<svelte:head>
+  <title>Sign in - Nagi</title>
+  <meta name="description" content="Sign in to your Nagi account" />
+  <meta property="og:title" content="Sign in - Nagi" />
+  <meta property="og:description" content="Sign in to your Nagi account" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Sign in - Nagi" />
+  <meta name="twitter:description" content="Sign in to your Nagi account" />
+</svelte:head>
+
 <div class="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
   <div class="w-full max-w-sm">
     <!-- Logo/Brand -->

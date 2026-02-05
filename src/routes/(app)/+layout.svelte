@@ -10,6 +10,11 @@
   const pendingRequestsCount = $derived(data.pendingRequestsCount);
   const currentPath = $derived($page.url.pathname);
 
+  // Check if current path is home
+  const isHomePath = $derived(
+    currentPath === "/home" || currentPath === "/home/" || currentPath === "/",
+  );
+
   // Redirect to login if not authenticated
   $effect(() => {
     if (!user) {
@@ -97,8 +102,8 @@
     <nav class="bg-background sticky bottom-0 border-t">
       <div class="mx-auto flex h-16 max-w-lg items-center justify-around px-4">
         <a
-          href={resolve("/")}
-          class="flex flex-col items-center gap-1 {currentPath === '/'
+          href={resolve("/home")}
+          class="flex flex-col items-center gap-1 {isHomePath
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >

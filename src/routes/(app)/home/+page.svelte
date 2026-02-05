@@ -8,6 +8,10 @@
   const posts = $derived(data.posts as PostWithUser[]);
 </script>
 
+<svelte:head>
+  <title>Nagi</title>
+</svelte:head>
+
 <!-- Feed -->
 {#if posts.length === 0}
   <div class="space-y-4">
