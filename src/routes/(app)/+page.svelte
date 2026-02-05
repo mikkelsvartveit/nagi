@@ -23,9 +23,9 @@
     </svg>
   </div>
   <h1 class="text-xl font-semibold">
-    Welcome, @{user?.username}
+    Welcome, {user?.name || "@" + user?.username}
   </h1>
-  <p class="text-muted-foreground mt-1 text-sm">{user?.email}</p>
+  <p class="text-muted-foreground mt-1 text-sm">@{user?.username}</p>
 </div>
 
 <!-- Placeholder Feed -->

@@ -33,14 +33,6 @@
     <p class="text-lg font-semibold">0</p>
     <p class="text-muted-foreground text-sm">Posts</p>
   </div>
-  <div class="text-center">
-    <p class="text-lg font-semibold">0</p>
-    <p class="text-muted-foreground text-sm">Followers</p>
-  </div>
-  <div class="text-center">
-    <p class="text-lg font-semibold">0</p>
-    <p class="text-muted-foreground text-sm">Following</p>
-  </div>
 </div>
 
 <!-- Posts Grid Placeholder -->

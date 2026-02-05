@@ -11,6 +11,7 @@ export enum Collections {
 	Mfas = "_mfas",
 	Otps = "_otps",
 	Superusers = "_superusers",
+	Posts = "posts",
 	Users = "users",
 }
 
@@ -92,6 +93,16 @@ export type SuperusersRecord = {
 	verified?: boolean
 }
 
+export type PostsRecord = {
+	caption?: string
+	created: IsoAutoDateString
+	id: string
+	images: FileNameString[]
+	location?: string
+	updated: IsoAutoDateString
+	user: RecordIdString
+}
+
 export type UsersRecord = {
 	avatar?: FileNameString
 	created: IsoAutoDateString
@@ -102,6 +113,7 @@ export type UsersRecord = {
 	password: string
 	tokenKey: string
 	updated: IsoAutoDateString
+	username: string
 	verified?: boolean
 }
 
@@ -111,6 +123,7 @@ export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRec
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
+export type PostsResponse<Texpand = unknown> = Required<PostsRecord> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
@@ -121,6 +134,7 @@ export type CollectionRecords = {
 	_mfas: MfasRecord
 	_otps: OtpsRecord
 	_superusers: SuperusersRecord
+	posts: PostsRecord
 	users: UsersRecord
 }
 
@@ -130,6 +144,7 @@ export type CollectionResponses = {
 	_mfas: MfasResponse
 	_otps: OtpsResponse
 	_superusers: SuperusersResponse
+	posts: PostsResponse
 	users: UsersResponse
 }
 
