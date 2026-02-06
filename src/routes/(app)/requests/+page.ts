@@ -8,7 +8,10 @@ export const load: PageLoad = async () => {
   const user = pb?.authStore?.model;
 
   if (!user) {
-    return { pendingRequests: [] as FollowWithUser[] };
+    return {
+      pendingRequests: [] as FollowWithUser[],
+      followingIds: [] as string[],
+    };
   }
 
   // Get pending follow requests where the current user is being followed
@@ -20,7 +23,18 @@ export const load: PageLoad = async () => {
       expand: "follower",
     });
 
+  // Get all users the current user follows (to check for "follow back" status)
+  const following = await pb
+    .collection("follows")
+    .getFullList<FollowsResponse>({
+      filter: `follower = "${user.id}"`,
+      requestKey: "requestsFollowingCheck",
+    });
+
+  const followingIds = following.map((f) => f.following);
+
   return {
     pendingRequests,
+    followingIds,
   };
 };

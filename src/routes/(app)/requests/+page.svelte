@@ -10,12 +10,27 @@
 
   let { data } = $props();
   const pendingRequests = $derived(data.pendingRequests as FollowWithUser[]);
+  const initialFollowingIds = $derived(data.followingIds as string[]);
 
   const processingIds = new SvelteSet<string>();
+
+  // Track accepted requests so we can show them with a "Follow back" button
+  let acceptedRequests = $state<FollowWithUser[]>([]);
+  // Track declined request IDs so we can hide them
+  const declinedIds = new SvelteSet<string>();
+  // Track users we've followed back (for optimistic UI)
+  let followedBackIds = $state<string[]>([]);
+  let loadingFollowBack = $state<string | null>(null);
 
   function getAvatarUrl(user: UsersResponse) {
     if (!user.avatar) return null;
     return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
+  }
+
+  function isFollowing(userId: string) {
+    return (
+      initialFollowingIds.includes(userId) || followedBackIds.includes(userId)
+    );
   }
 
   async function handleAccept(request: FollowWithUser) {
@@ -23,6 +38,7 @@
 
     try {
       await pb.collection("follows").update(request.id, { accepted: true });
+      acceptedRequests = [...acceptedRequests, request];
       await invalidateAll();
     } catch (error) {
       console.error("Failed to accept follow request:", error);
@@ -36,11 +52,37 @@
 
     try {
       await pb.collection("follows").delete(request.id);
+      declinedIds.add(request.id);
       await invalidateAll();
     } catch (error) {
       console.error("Failed to decline follow request:", error);
     } finally {
       processingIds.delete(request.id);
+    }
+  }
+
+  async function handleFollowBack(userId: string) {
+    const currentUser = pb.authStore.model;
+    if (!currentUser) return;
+
+    loadingFollowBack = userId;
+    try {
+      const targetUser = await pb
+        .collection("users")
+        .getOne<UsersResponse>(userId);
+
+      await pb.collection("follows").create({
+        follower: currentUser.id,
+        following: userId,
+        accepted: targetUser.isPublic ? true : false,
+      });
+
+      followedBackIds = [...followedBackIds, userId];
+      await invalidateAll();
+    } catch (error) {
+      console.error("Failed to follow back:", error);
+    } finally {
+      loadingFollowBack = null;
     }
   }
 
@@ -50,12 +92,21 @@
       day: "numeric",
     });
   }
+
+  // Combine pending and accepted requests, filtering out declined ones
+  const allRequests = $derived(() => {
+    const acceptedIds = new Set(acceptedRequests.map((r) => r.id));
+    const pending = pendingRequests.filter(
+      (r) => !declinedIds.has(r.id) && !acceptedIds.has(r.id),
+    );
+    return [...pending, ...acceptedRequests];
+  });
 </script>
 
 <div class="pt-6">
   <h1 class="mb-6 text-xl font-semibold">Follow Requests</h1>
 
-  {#if pendingRequests.length === 0}
+  {#if allRequests().length === 0}
     <div class="bg-card rounded-xl border p-8 text-center">
       <div
         class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
@@ -83,8 +134,9 @@
     </div>
   {:else}
     <div class="space-y-3">
-      {#each pendingRequests as request (request.id)}
+      {#each allRequests() as request (request.id)}
         {@const follower = request.expand?.follower}
+        {@const isAccepted = acceptedRequests.some((r) => r.id === request.id)}
         {#if follower}
           <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
             <a
@@ -129,21 +181,39 @@
             </div>
 
             <div class="flex flex-shrink-0 gap-2">
-              <Button
-                size="sm"
-                onclick={() => handleAccept(request)}
-                disabled={processingIds.has(request.id)}
-              >
-                Accept
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onclick={() => handleDecline(request)}
-                disabled={processingIds.has(request.id)}
-              >
-                Decline
-              </Button>
+              {#if isAccepted}
+                {#if !isFollowing(follower.id)}
+                  <Button
+                    size="sm"
+                    onclick={() => handleFollowBack(follower.id)}
+                    disabled={loadingFollowBack === follower.id}
+                  >
+                    {#if loadingFollowBack === follower.id}
+                      Following...
+                    {:else}
+                      Follow back
+                    {/if}
+                  </Button>
+                {:else}
+                  <span class="text-muted-foreground text-sm">Following</span>
+                {/if}
+              {:else}
+                <Button
+                  size="sm"
+                  onclick={() => handleAccept(request)}
+                  disabled={processingIds.has(request.id)}
+                >
+                  Accept
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onclick={() => handleDecline(request)}
+                  disabled={processingIds.has(request.id)}
+                >
+                  Decline
+                </Button>
+              {/if}
             </div>
           </div>
         {/if}
