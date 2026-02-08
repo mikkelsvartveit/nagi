@@ -157,14 +157,6 @@
     {/if}
   </div>
 
-  <!-- Stats -->
-  <div class="mt-6 flex justify-center gap-8">
-    <div class="text-center">
-      <p class="text-lg font-semibold">{posts.length}</p>
-      <p class="text-muted-foreground text-sm">Posts</p>
-    </div>
-  </div>
-
   <!-- Posts -->
   {#if !canViewPosts}
     <div class="bg-card mt-8 rounded-xl border p-8 text-center">

@@ -3,7 +3,6 @@
   import { page } from "$app/stores";
   import { resolve } from "$app/paths";
   import { pb } from "$lib/pocketbase";
-  import { Button } from "$lib/components/ui/button";
 
   let { data, children } = $props();
   const user = $derived(data.user);
@@ -52,11 +51,32 @@
       class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 cursor-pointer border-b backdrop-blur"
     >
       <div class="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-        <div class="flex items-center gap-2">
+        <a href={resolve("/home")} class="flex items-center gap-2">
           <img src="/favicon.png" alt="Nagi logo" class="h-8 w-8" />
           <span class="font-semibold">Nagi</span>
-        </div>
+        </a>
         <div class="flex items-center gap-2">
+          <button
+            onclick={() => window.location.reload()}
+            class="text-muted-foreground hover:text-foreground p-2"
+            aria-label="Refresh"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-5 w-5"
+            >
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+              <path d="M16 16h5v5" />
+            </svg>
+          </button>
           <a
             href={resolve("/requests")}
             class="text-muted-foreground hover:text-foreground relative p-2"
@@ -84,9 +104,26 @@
               </span>
             {/if}
           </a>
-          <Button variant="ghost" size="sm" onclick={handleLogout}>
-            Sign out
-          </Button>
+          <button
+            onclick={handleLogout}
+            class="text-muted-foreground hover:text-foreground p-2"
+            aria-label="Sign out"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="h-5 w-5"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" x2="9" y1="12" y2="12" />
+            </svg>
+          </button>
         </div>
       </div>
     </header>

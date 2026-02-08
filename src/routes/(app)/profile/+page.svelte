@@ -89,6 +89,24 @@
       {/if}
     </div>
     <div
+      class="bg-background absolute -top-0.5 -right-0.5 z-20 flex h-7 w-7 items-center justify-center rounded-full border shadow"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="text-muted-foreground h-3.5 w-3.5"
+      >
+        <path
+          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 1 1 3.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+        />
+      </svg>
+    </div>
+    <div
       class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
     >
       {#if uploading}
@@ -144,16 +162,22 @@
 </div>
 
 <!-- Stats -->
-<div class="mt-6 flex justify-center gap-8">
-  <div class="text-center">
+<div class="mt-6 flex justify-center gap-2">
+  <div class="w-20 text-center">
     <p class="text-lg font-semibold">{posts.length}</p>
     <p class="text-muted-foreground text-sm">Posts</p>
   </div>
-  <a href={resolve("/profile/followers")} class="text-center hover:opacity-70">
+  <a
+    href={resolve("/profile/followers")}
+    class="w-20 text-center hover:opacity-70"
+  >
     <p class="text-lg font-semibold">{followersCount}</p>
     <p class="text-muted-foreground text-sm">Followers</p>
   </a>
-  <a href={resolve("/profile/following")} class="text-center hover:opacity-70">
+  <a
+    href={resolve("/profile/following")}
+    class="w-20 text-center hover:opacity-70"
+  >
     <p class="text-lg font-semibold">{followingCount}</p>
     <p class="text-muted-foreground text-sm">Following</p>
   </a>

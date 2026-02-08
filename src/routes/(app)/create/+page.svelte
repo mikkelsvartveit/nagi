@@ -182,12 +182,12 @@
         >
           {#each imagePreviews as preview, index (preview)}
             <div
-              class="scroll-snap-align-start relative aspect-square h-48 flex-shrink-0 overflow-hidden rounded-lg"
+              class="scroll-snap-align-start relative h-48 flex-shrink-0 overflow-hidden rounded-lg"
             >
               <img
                 src={preview}
                 alt="Preview {index + 1}"
-                class="h-full w-full object-cover"
+                class="h-full w-auto"
               />
               <button
                 type="button"
