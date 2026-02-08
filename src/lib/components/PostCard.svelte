@@ -1,18 +1,38 @@
 <script lang="ts">
+  import { invalidateAll } from "$app/navigation";
   import { pb } from "$lib/pocketbase";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import type { PostsResponse, UsersResponse } from "$lib/pocketbase-typegen";
 
   type PostWithUser = PostsResponse<{ user: UsersResponse }>;
 
   let { post }: { post: PostWithUser } = $props();
   const postUser = $derived(post.expand?.user as UsersResponse | undefined);
+  const currentUser = $derived(pb.authStore.model);
+  const isOwner = $derived(currentUser?.id === post.user);
 
   let currentImageIndex = $state(0);
   let isHovering = $state(false);
   let carouselEl: HTMLDivElement | undefined = $state();
+  let deleteDialogOpen = $state(false);
+  let deleting = $state(false);
 
   // Track container height based on tallest image
   let containerHeight = $state(0);
+
+  async function handleDelete() {
+    deleting = true;
+    try {
+      await pb.collection("posts").delete(post.id);
+      deleteDialogOpen = false;
+      await invalidateAll();
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+    } finally {
+      deleting = false;
+    }
+  }
 
   function handleImageLoad(e: Event) {
     const img = e.target as HTMLImageElement;
@@ -107,6 +127,57 @@
         </p>
       {/if}
     </div>
+
+    {#if isOwner}
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger
+          class="text-muted-foreground hover:text-foreground rounded-md p-1 transition-colors"
+          aria-label="Post options"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="5" r="1" />
+            <circle cx="12" cy="12" r="1" />
+            <circle cx="12" cy="19" r="1" />
+          </svg>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end">
+          <DropdownMenu.Item
+            class="text-destructive focus:text-destructive"
+            onclick={() => (deleteDialogOpen = true)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="mr-2"
+            >
+              <path d="M3 6h18" />
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              <line x1="10" x2="10" y1="11" y2="17" />
+              <line x1="14" x2="14" y1="11" y2="17" />
+            </svg>
+            Delete post
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    {/if}
   </div>
 
   <!-- Image carousel -->
@@ -211,6 +282,33 @@
     <!-- Date -->
     <p class="text-muted-foreground text-xs">{formatDate(post.created)}</p>
   </div>
+
+  <!-- Delete confirmation dialog -->
+  <AlertDialog.Root bind:open={deleteDialogOpen}>
+    <AlertDialog.Content>
+      <AlertDialog.Header>
+        <AlertDialog.Title>Delete post</AlertDialog.Title>
+        <AlertDialog.Description>
+          This will permanently delete this post and its images. This action
+          cannot be undone.
+        </AlertDialog.Description>
+      </AlertDialog.Header>
+      <AlertDialog.Footer>
+        <AlertDialog.Cancel disabled={deleting}>Cancel</AlertDialog.Cancel>
+        <AlertDialog.Action
+          onclick={handleDelete}
+          disabled={deleting}
+          class="bg-destructive hover:bg-destructive/90 text-white"
+        >
+          {#if deleting}
+            Deleting...
+          {:else}
+            Delete
+          {/if}
+        </AlertDialog.Action>
+      </AlertDialog.Footer>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
 </article>
 
 <style>
