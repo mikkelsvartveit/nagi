@@ -3,6 +3,7 @@
 
   let { data } = $props();
   const post = $derived(data.post);
+  const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
 </script>
 
-<PostCard {post} />
+<PostCard {post} {likedPostIds} />

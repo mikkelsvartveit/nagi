@@ -13,6 +13,7 @@
   const posts = $derived(data.posts as PostWithUser[]);
   const followersCount = $derived(data.followersCount);
   const followingCount = $derived(data.followingCount);
+  const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
 
   let fileInput: HTMLInputElement | undefined = $state();
   let uploading = $state(false);
@@ -229,7 +230,7 @@
 {:else}
   <div class="mt-10 space-y-10">
     {#each posts as post (post.id)}
-      <PostCard {post} />
+      <PostCard {post} {likedPostIds} />
     {/each}
   </div>
 {/if}

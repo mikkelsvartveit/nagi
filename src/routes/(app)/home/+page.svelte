@@ -6,6 +6,7 @@
 
   let { data } = $props();
   const posts = $derived(data.posts as PostWithUser[]);
+  const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
 </script>
 
 <svelte:head>
@@ -43,7 +44,7 @@
 {:else}
   <div class="space-y-10">
     {#each posts as post (post.id)}
-      <PostCard {post} />
+      <PostCard {post} {likedPostIds} />
     {/each}
   </div>
 {/if}

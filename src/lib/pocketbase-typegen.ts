@@ -12,6 +12,7 @@ export enum Collections {
 	Otps = "_otps",
 	Superusers = "_superusers",
 	Follows = "follows",
+	Likes = "likes",
 	Posts = "posts",
 	Users = "users",
 }
@@ -100,7 +101,17 @@ export type FollowsRecord = {
 	follower?: RecordIdString
 	following?: RecordIdString
 	id: string
+	read?: boolean
 	updated: IsoAutoDateString
+}
+
+export type LikesRecord = {
+	created: IsoAutoDateString
+	id: string
+	post: RecordIdString
+	read?: boolean
+	updated: IsoAutoDateString
+	user: RecordIdString
 }
 
 export type PostsRecord = {
@@ -135,6 +146,7 @@ export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemF
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
 export type FollowsResponse<Texpand = unknown> = Required<FollowsRecord> & BaseSystemFields<Texpand>
+export type LikesResponse<Texpand = unknown> = Required<LikesRecord> & BaseSystemFields<Texpand>
 export type PostsResponse<Texpand = unknown> = Required<PostsRecord> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
@@ -147,6 +159,7 @@ export type CollectionRecords = {
 	_otps: OtpsRecord
 	_superusers: SuperusersRecord
 	follows: FollowsRecord
+	likes: LikesRecord
 	posts: PostsRecord
 	users: UsersRecord
 }
@@ -158,6 +171,7 @@ export type CollectionResponses = {
 	_otps: OtpsResponse
 	_superusers: SuperusersResponse
 	follows: FollowsResponse
+	likes: LikesResponse
 	posts: PostsResponse
 	users: UsersResponse
 }

@@ -1,5 +1,9 @@
 import { pb } from "$lib/pocketbase";
-import type { PostsResponse, UsersResponse } from "$lib/pocketbase-typegen";
+import type {
+  LikesResponse,
+  PostsResponse,
+  UsersResponse,
+} from "$lib/pocketbase-typegen";
 import type { PageLoad } from "./$types";
 
 type PostWithUser = PostsResponse<{ user: UsersResponse }>;
@@ -12,6 +16,7 @@ export const load: PageLoad = async () => {
       posts: [] as PostWithUser[],
       followersCount: 0,
       followingCount: 0,
+      likedPostIds: [] as string[],
     };
   }
 
@@ -32,9 +37,22 @@ export const load: PageLoad = async () => {
     }),
   ]);
 
+  // Fetch current user's likes for their own posts
+  let likedPostIds: string[] = [];
+  if (posts.length > 0) {
+    const postIds = posts.map((p) => p.id);
+    const likesFilter = postIds.map((id) => `post = "${id}"`).join(" || ");
+    const likes = await pb.collection("likes").getFullList<LikesResponse>({
+      filter: `user = "${user.id}" && (${likesFilter})`,
+      requestKey: "profileLikes",
+    });
+    likedPostIds = likes.map((l) => l.post);
+  }
+
   return {
     posts,
     followersCount: followersResult.totalItems,
     followingCount: followingResult.totalItems,
+    likedPostIds,
   };
 };

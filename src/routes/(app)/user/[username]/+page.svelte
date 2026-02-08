@@ -18,6 +18,7 @@
   const serverFollowStatus = $derived(
     data.followStatus as FollowsResponse | null,
   );
+  const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
 
   // Local state for optimistic updates: undefined = use server, null = explicitly unfollowed
   let localFollowStatus = $state<FollowsResponse | null | undefined>(undefined);
@@ -210,7 +211,7 @@
   {:else}
     <div class="mt-10 space-y-10">
       {#each posts as post (post.id)}
-        <PostCard {post} />
+        <PostCard {post} {likedPostIds} />
       {/each}
     </div>
   {/if}

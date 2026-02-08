@@ -6,7 +6,7 @@
 
   let { data, children } = $props();
   const user = $derived(data.user);
-  const pendingRequestsCount = $derived(data.pendingRequestsCount);
+  const notificationBadgeCount = $derived(data.notificationBadgeCount);
   const currentPath = $derived($page.url.pathname);
 
   // Check if current path is home
@@ -78,7 +78,7 @@
             </svg>
           </button>
           <a
-            href={resolve("/requests")}
+            href={resolve("/notifications")}
             class="text-muted-foreground hover:text-foreground relative p-2"
           >
             <svg
@@ -91,16 +91,14 @@
               stroke-linejoin="round"
               class="h-5 w-5"
             >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <line x1="19" x2="19" y1="8" y2="14" />
-              <line x1="22" x2="16" y1="11" y2="11" />
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
             </svg>
-            {#if pendingRequestsCount > 0}
+            {#if notificationBadgeCount > 0}
               <span
                 class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-medium text-white"
               >
-                {pendingRequestsCount > 99 ? "99+" : pendingRequestsCount}
+                {notificationBadgeCount > 99 ? "99+" : notificationBadgeCount}
               </span>
             {/if}
           </a>
