@@ -5,6 +5,7 @@
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
+  import { Progress } from "$lib/components/ui/progress";
   import { Textarea } from "$lib/components/ui/textarea";
   import type { Create } from "$lib/pocketbase-typegen";
 
@@ -15,6 +16,7 @@
   let images = $state<File[]>([]);
   let imagePreviews = $state<string[]>([]);
   let loading = $state(false);
+  let uploadProgress = $state(0);
   let errors = $state<FieldErrors>({});
 
   const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -89,12 +91,46 @@
     return Object.keys(newErrors).length === 0;
   };
 
+  const uploadWithProgress = (formData: FormData): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          uploadProgress = Math.round((e.loaded / e.total) * 100);
+        }
+      });
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      });
+
+      xhr.addEventListener("error", () => {
+        reject(new Error("Upload failed"));
+      });
+
+      xhr.open("POST", "/api/collections/posts/records");
+
+      const token = pb.authStore.token;
+      if (token) {
+        xhr.setRequestHeader("Authorization", token);
+      }
+
+      xhr.send(formData);
+    });
+  };
+
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
     loading = true;
+    uploadProgress = 0;
     errors = {};
 
     const user = pb.authStore.model;
@@ -114,7 +150,7 @@
     });
 
     try {
-      await pb.collection("posts").create(formData);
+      await uploadWithProgress(formData);
       goto(resolve("/"));
     } catch (err: unknown) {
       console.error("Failed to create post:", err);
@@ -255,6 +291,17 @@
     </div>
 
     <!-- Submit Button -->
+    {#if loading}
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-muted-foreground">Uploading photos...</span>
+          <span class="text-muted-foreground font-medium"
+            >{uploadProgress}%</span
+          >
+        </div>
+        <Progress value={uploadProgress} max={100} />
+      </div>
+    {/if}
     <Button
       type="submit"
       class="w-full"
