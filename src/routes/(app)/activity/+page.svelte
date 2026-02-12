@@ -210,7 +210,7 @@
 </script>
 
 <div class="pt-6">
-  <h1 class="mb-6 text-xl font-semibold">Notifications</h1>
+  <h1 class="mb-6 text-xl font-semibold">Activity</h1>
 
   {#if allItems.length === 0}
     <div class="bg-card rounded-xl border p-8 text-center">
@@ -231,7 +231,7 @@
           <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
         </svg>
       </div>
-      <h2 class="font-medium">No notifications</h2>
+      <h2 class="font-medium">No activity</h2>
       <p class="text-muted-foreground mt-1 text-sm">
         When people interact with your account, you'll see it here
       </p>

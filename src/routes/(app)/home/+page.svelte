@@ -42,7 +42,7 @@
     </div>
   </div>
 {:else}
-  <div class="space-y-10">
+  <div class="space-y-8">
     {#each posts as post (post.id)}
       <PostCard {post} {likedPostIds} />
     {/each}

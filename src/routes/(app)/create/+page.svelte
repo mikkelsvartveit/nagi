@@ -168,172 +168,176 @@
   });
 </script>
 
-<div class="max-h-[calc(100dvh-140px)] overflow-y-auto">
-  <form onsubmit={handleSubmit} class="space-y-6">
-    <!-- Image Upload -->
-    <div class="space-y-2">
-      <Label for="images">Photos</Label>
+<div class="pt-6">
+  <h1 class="mb-6 text-xl font-semibold">Create post</h1>
 
-      <!-- Image Carousel -->
-      {#if imagePreviews.length > 0}
-        <div
-          class="scrollbar-hide relative flex gap-2 overflow-x-auto pb-2"
-          style="scroll-snap-type: x mandatory;"
-        >
-          {#each imagePreviews as preview, index (preview)}
-            <div
-              class="scroll-snap-align-start relative h-48 flex-shrink-0 overflow-hidden rounded-lg"
-            >
-              <img
-                src={preview}
-                alt="Preview {index + 1}"
-                class="h-full w-auto"
-              />
-              <button
-                type="button"
-                onclick={() => removeImage(index)}
-                class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
-                aria-label="Remove image"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
-              </button>
-              <div
-                class="absolute bottom-2 left-2 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white"
-              >
-                {index + 1}/{images.length}
-              </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
-
-      <!-- Upload Button -->
-      {#if images.length < MAX_IMAGES}
-        <div>
-          <Label
-            for="images-input"
-            class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="text-muted-foreground"
-            >
-              <path
-                d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-              />
-              <line x1="9" x2="15" y1="12" y2="12" />
-              <line x1="12" x2="12" y1="9" y2="15" />
-            </svg>
-            <span class="text-muted-foreground text-sm font-medium">
-              Click to add photos
-            </span>
-            <span class="text-muted-foreground text-xs">
-              {images.length}/{MAX_IMAGES} images
-            </span>
-          </Label>
-          <Input
-            id="images-input"
-            type="file"
-            accept="image/*"
-            multiple
-            class="hidden"
-            onchange={handleImageSelect}
-          />
-        </div>
-      {/if}
-
-      {#if errors.images}
-        <p class="text-destructive text-sm">{errors.images}</p>
-      {/if}
-    </div>
-
-    <!-- Caption -->
-    <div class="space-y-2">
-      <Label for="caption">Caption</Label>
-      <Textarea
-        id="caption"
-        bind:value={caption}
-        placeholder="Write a caption..."
-        rows={3}
-      />
-    </div>
-
-    <!-- Location -->
-    <div class="space-y-2">
-      <Label for="location">Location</Label>
-      <Input
-        id="location"
-        type="text"
-        bind:value={location}
-        placeholder="Add location"
-      />
-    </div>
-
-    <!-- Submit Button -->
-    {#if loading}
+  <div class="max-h-[calc(100dvh-140px)] overflow-y-auto">
+    <form onsubmit={handleSubmit} class="space-y-6">
+      <!-- Image Upload -->
       <div class="space-y-2">
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-muted-foreground">Uploading photos...</span>
-          <span class="text-muted-foreground font-medium"
-            >{uploadProgress}%</span
+        <Label for="images">Photos</Label>
+
+        <!-- Image Carousel -->
+        {#if imagePreviews.length > 0}
+          <div
+            class="scrollbar-hide relative flex gap-2 overflow-x-auto pb-2"
+            style="scroll-snap-type: x mandatory;"
           >
-        </div>
-        <Progress value={uploadProgress} max={100} />
+            {#each imagePreviews as preview, index (preview)}
+              <div
+                class="scroll-snap-align-start relative h-48 flex-shrink-0 overflow-hidden rounded-lg"
+              >
+                <img
+                  src={preview}
+                  alt="Preview {index + 1}"
+                  class="h-full w-auto"
+                />
+                <button
+                  type="button"
+                  onclick={() => removeImage(index)}
+                  class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
+                  aria-label="Remove image"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
+                <div
+                  class="absolute bottom-2 left-2 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white"
+                >
+                  {index + 1}/{images.length}
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- Upload Button -->
+        {#if images.length < MAX_IMAGES}
+          <div>
+            <Label
+              for="images-input"
+              class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-muted-foreground"
+              >
+                <path
+                  d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                />
+                <line x1="9" x2="15" y1="12" y2="12" />
+                <line x1="12" x2="12" y1="9" y2="15" />
+              </svg>
+              <span class="text-muted-foreground text-sm font-medium">
+                Click to add photos
+              </span>
+              <span class="text-muted-foreground text-xs">
+                {images.length}/{MAX_IMAGES} images
+              </span>
+            </Label>
+            <Input
+              id="images-input"
+              type="file"
+              accept="image/*"
+              multiple
+              class="hidden"
+              onchange={handleImageSelect}
+            />
+          </div>
+        {/if}
+
+        {#if errors.images}
+          <p class="text-destructive text-sm">{errors.images}</p>
+        {/if}
       </div>
-    {/if}
-    <Button
-      type="submit"
-      class="w-full"
-      disabled={loading || images.length === 0}
-    >
+
+      <!-- Caption -->
+      <div class="space-y-2">
+        <Label for="caption">Caption</Label>
+        <Textarea
+          id="caption"
+          bind:value={caption}
+          placeholder="Write a caption..."
+          rows={3}
+        />
+      </div>
+
+      <!-- Location -->
+      <div class="space-y-2">
+        <Label for="location">Location</Label>
+        <Input
+          id="location"
+          type="text"
+          bind:value={location}
+          placeholder="Add location"
+        />
+      </div>
+
+      <!-- Submit Button -->
       {#if loading}
-        <svg
-          class="mr-2 h-4 w-4 animate-spin"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          />
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
-        Creating post...
-      {:else}
-        Share
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-muted-foreground">Uploading photos...</span>
+            <span class="text-muted-foreground font-medium"
+              >{uploadProgress}%</span
+            >
+          </div>
+          <Progress value={uploadProgress} max={100} />
+        </div>
       {/if}
-    </Button>
-  </form>
+      <Button
+        type="submit"
+        class="w-full"
+        disabled={loading || images.length === 0}
+      >
+        {#if loading}
+          <svg
+            class="mr-2 h-4 w-4 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          Creating post...
+        {:else}
+          Share
+        {/if}
+      </Button>
+    </form>
+  </div>
 </div>
 
 <style>

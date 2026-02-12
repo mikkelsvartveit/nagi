@@ -203,7 +203,7 @@
   }
 </script>
 
-<article class="space-y-3">
+<article class="space-y-3 pt-4">
   <!-- Header: User info -->
   <div class="flex items-center gap-3">
     <div
