@@ -54,7 +54,7 @@
   }
 </script>
 
-<div class="py-4">
+<div class="py-6">
   <h1 class="mb-6 text-xl font-semibold">Followers</h1>
 
   {#if followers.length === 0}
