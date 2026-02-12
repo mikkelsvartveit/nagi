@@ -32,6 +32,7 @@
   const recentFollows = $derived(data.recentFollows as FollowWithUser[]);
   const recentLikes = $derived(data.recentLikes as LikeWithExpand[]);
   const initialFollowingIds = $derived(data.followingIds as string[]);
+  const pendingFollowingIds = $derived(data.pendingFollowingIds as string[]);
   const unreadLikeIds = $derived(data.unreadLikeIds as string[]);
   const unreadFollowIds = $derived(data.unreadFollowIds as string[]);
 
@@ -86,6 +87,10 @@
     return (
       initialFollowingIds.includes(userId) || followedBackIds.includes(userId)
     );
+  }
+
+  function isPendingRequest(userId: string) {
+    return pendingFollowingIds.includes(userId);
   }
 
   async function handleAccept(request: FollowWithUser) {
@@ -304,17 +309,23 @@
               <div class="flex flex-shrink-0 gap-2">
                 {#if isAccepted}
                   {#if !isFollowing(follower.id)}
-                    <Button
-                      size="sm"
-                      onclick={() => handleFollowBack(follower.id)}
-                      disabled={loadingFollowBack === follower.id}
-                    >
-                      {#if loadingFollowBack === follower.id}
-                        Following...
-                      {:else}
-                        Follow back
-                      {/if}
-                    </Button>
+                    {#if isPendingRequest(follower.id)}
+                      <span class="text-muted-foreground text-sm"
+                        >Requested</span
+                      >
+                    {:else}
+                      <Button
+                        size="sm"
+                        onclick={() => handleFollowBack(follower.id)}
+                        disabled={loadingFollowBack === follower.id}
+                      >
+                        {#if loadingFollowBack === follower.id}
+                          Following...
+                        {:else}
+                          Follow back
+                        {/if}
+                      </Button>
+                    {/if}
                   {:else}
                     <span class="text-muted-foreground text-sm">Following</span>
                   {/if}
@@ -386,17 +397,21 @@
               </div>
 
               {#if !isFollowing(follower.id)}
-                <Button
-                  size="sm"
-                  onclick={() => handleFollowBack(follower.id)}
-                  disabled={loadingFollowBack === follower.id}
-                >
-                  {#if loadingFollowBack === follower.id}
-                    Following...
-                  {:else}
-                    Follow back
-                  {/if}
-                </Button>
+                {#if isPendingRequest(follower.id)}
+                  <span class="text-muted-foreground text-sm">Requested</span>
+                {:else}
+                  <Button
+                    size="sm"
+                    onclick={() => handleFollowBack(follower.id)}
+                    disabled={loadingFollowBack === follower.id}
+                  >
+                    {#if loadingFollowBack === follower.id}
+                      Following...
+                    {:else}
+                      Follow back
+                    {/if}
+                  </Button>
+                {/if}
               {:else}
                 <span class="text-muted-foreground text-sm">Following</span>
               {/if}

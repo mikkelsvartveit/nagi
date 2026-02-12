@@ -25,39 +25,51 @@ export const load: PageLoad = async () => {
     };
   }
 
-  const [pendingRequests, recentFollows, recentLikes, following] =
-    await Promise.all([
-      // Pending follow requests (not yet accepted)
-      pb.collection("follows").getFullList<FollowWithUser>({
-        filter: `following = "${user.id}" && accepted = false`,
-        sort: "-created",
-        expand: "follower",
-      }),
+  const [
+    pendingRequests,
+    recentFollows,
+    recentLikes,
+    following,
+    pendingFollowing,
+  ] = await Promise.all([
+    // Pending follow requests (not yet accepted) - incoming
+    pb.collection("follows").getFullList<FollowWithUser>({
+      filter: `following = "${user.id}" && accepted = false`,
+      sort: "-created",
+      expand: "follower",
+    }),
 
-      // Recent accepted follows (these are "started following you" notifications)
-      pb.collection("follows").getFullList<FollowWithUser>({
-        filter: `following = "${user.id}" && accepted = true`,
-        sort: "-created",
-        expand: "follower",
-        requestKey: "recentFollows",
-      }),
+    // Recent accepted follows (these are "started following you" notifications)
+    pb.collection("follows").getFullList<FollowWithUser>({
+      filter: `following = "${user.id}" && accepted = true`,
+      sort: "-created",
+      expand: "follower",
+      requestKey: "recentFollows",
+    }),
 
-      // Recent likes on user's posts
-      pb.collection("likes").getFullList<LikeWithExpand>({
-        filter: `post.user = "${user.id}"`,
-        sort: "-created",
-        expand: "user,post",
-        requestKey: "recentLikes",
-      }),
+    // Recent likes on user's posts
+    pb.collection("likes").getFullList<LikeWithExpand>({
+      filter: `post.user = "${user.id}"`,
+      sort: "-created",
+      expand: "user,post",
+      requestKey: "recentLikes",
+    }),
 
-      // All users the current user follows (for "follow back" status)
-      pb.collection("follows").getFullList<FollowsResponse>({
-        filter: `follower = "${user.id}"`,
-        requestKey: "notificationsFollowingCheck",
-      }),
-    ]);
+    // All accepted follows by the current user (for "follow back" status)
+    pb.collection("follows").getFullList<FollowsResponse>({
+      filter: `follower = "${user.id}" && accepted = true`,
+      requestKey: "notificationsFollowingCheck",
+    }),
+
+    // Pending outgoing follow requests by the current user
+    pb.collection("follows").getFullList<FollowsResponse>({
+      filter: `follower = "${user.id}" && accepted = false`,
+      requestKey: "pendingFollowingCheck",
+    }),
+  ]);
 
   const followingIds = following.map((f) => f.following);
+  const pendingFollowingIds = pendingFollowing.map((f) => f.following);
 
   // Collect IDs of unread items so the page component can mark them as read
   const unreadLikeIds = recentLikes.filter((l) => !l.read).map((l) => l.id);
@@ -68,6 +80,7 @@ export const load: PageLoad = async () => {
     recentFollows,
     recentLikes,
     followingIds,
+    pendingFollowingIds,
     unreadLikeIds,
     unreadFollowIds,
   };
