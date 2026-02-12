@@ -233,9 +233,12 @@
     </div>
 
     <div class="min-w-0 flex-1">
-      <p class="truncate text-sm font-semibold">
+      <a
+        href={resolve(`/u/${postUser?.username}`)}
+        class="block truncate text-sm font-semibold hover:underline"
+      >
         {postUser?.username || "Unknown"}
-      </p>
+      </a>
       {#if post.location}
         <p class="text-muted-foreground truncate text-xs">
           {post.location}
@@ -524,7 +527,7 @@
           <div class="space-y-3">
             {#each likesUsers as likeUser (likeUser.id)}
               <a
-                href={resolve(`/user/${likeUser.username}`)}
+                href={resolve(`/u/${likeUser.username}`)}
                 class="hover:bg-accent flex items-center gap-3 rounded-lg p-2 transition-colors"
                 onclick={() => (likesDialogOpen = false)}
               >

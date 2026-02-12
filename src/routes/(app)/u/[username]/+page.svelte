@@ -105,7 +105,7 @@
     </p>
   </div>
 {:else}
-  <div class="pt-6 text-center">
+  <div class="pt-10 text-center">
     <div
       class="bg-muted mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full"
     >

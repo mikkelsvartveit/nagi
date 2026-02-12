@@ -47,7 +47,7 @@
         {@const followingUser = follow.expand?.following}
         {#if followingUser}
           <a
-            href={resolve(`/user/${followingUser.username}`)}
+            href={resolve(`/u/${followingUser.username}`)}
             class="bg-card flex items-center gap-3 rounded-xl border p-4"
           >
             <div

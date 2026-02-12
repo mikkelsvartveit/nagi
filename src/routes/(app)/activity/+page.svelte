@@ -253,7 +253,7 @@
           {#if follower}
             <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
               <a
-                href={resolve(`/user/${follower.username}`)}
+                href={resolve(`/u/${follower.username}`)}
                 class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
               >
                 {#if getAvatarUrl(follower)}
@@ -283,7 +283,7 @@
                 {#if isAccepted}
                   <p class="text-sm">
                     <a
-                      href={resolve(`/user/${follower.username}`)}
+                      href={resolve(`/u/${follower.username}`)}
                       class="font-medium hover:underline"
                     >
                       {follower.name || "@" + follower.username}
@@ -292,7 +292,7 @@
                   </p>
                 {:else}
                   <a
-                    href={resolve(`/user/${follower.username}`)}
+                    href={resolve(`/u/${follower.username}`)}
                     class="block truncate font-medium hover:underline"
                   >
                     {follower.name || "@" + follower.username}
@@ -355,7 +355,7 @@
           {#if follower}
             <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
               <a
-                href={resolve(`/user/${follower.username}`)}
+                href={resolve(`/u/${follower.username}`)}
                 class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
               >
                 {#if getAvatarUrl(follower)}
@@ -384,7 +384,7 @@
               <div class="min-w-0 flex-1">
                 <p class="text-sm">
                   <a
-                    href={resolve(`/user/${follower.username}`)}
+                    href={resolve(`/u/${follower.username}`)}
                     class="font-medium hover:underline"
                   >
                     {follower.name || "@" + follower.username}
@@ -424,7 +424,7 @@
           {#if likeUser}
             <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
               <a
-                href={resolve(`/user/${likeUser.username}`)}
+                href={resolve(`/u/${likeUser.username}`)}
                 class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
               >
                 {#if getAvatarUrl(likeUser)}
@@ -453,7 +453,7 @@
               <div class="min-w-0 flex-1">
                 <p class="text-sm">
                   <a
-                    href={resolve(`/user/${likeUser.username}`)}
+                    href={resolve(`/u/${likeUser.username}`)}
                     class="font-medium hover:underline"
                   >
                     {likeUser.name || "@" + likeUser.username}

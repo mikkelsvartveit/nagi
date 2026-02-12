@@ -90,7 +90,7 @@
             class="bg-card flex items-center justify-between rounded-xl border p-4"
           >
             <a
-              href={resolve(`/user/${followerUser.username}`)}
+              href={resolve(`/u/${followerUser.username}`)}
               class="flex min-w-0 flex-1 items-center gap-3"
             >
               <div

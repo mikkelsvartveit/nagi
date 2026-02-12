@@ -131,7 +131,7 @@
     <div class="space-y-2">
       {#each results as user (user.id)}
         <a
-          href={resolve(`/user/${user.username}`)}
+          href={resolve(`/u/${user.username}`)}
           class="bg-card hover:bg-accent flex items-center gap-3 rounded-xl border p-4 transition-colors"
         >
           <div
