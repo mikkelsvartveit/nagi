@@ -1,31 +1,16 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { resolve } from "$app/paths";
+  import EmptyStateCard from "$lib/components/EmptyStateCard.svelte";
+  import ActivityListItem from "./ActivityListItem.svelte";
+  import type {
+    FollowWithUser,
+    LikeWithExpand,
+    NotificationItem,
+  } from "./activity-types";
   import { pb } from "$lib/pocketbase";
-  import { Button } from "$lib/components/ui/button";
+  import type { UsersResponse } from "$lib/pocketbase-typegen";
+  import { formatDate } from "$lib/utils";
   import { SvelteSet } from "svelte/reactivity";
-  import type { PostsResponse, UsersResponse } from "$lib/pocketbase-typegen";
-  import type { FollowWithUser, LikeWithExpand } from "./+page";
-
-  type NotificationItem =
-    | {
-        kind: "follow_request";
-        id: string;
-        created: string;
-        request: FollowWithUser;
-      }
-    | {
-        kind: "follow";
-        id: string;
-        created: string;
-        follow: FollowWithUser;
-      }
-    | {
-        kind: "like";
-        id: string;
-        created: string;
-        like: LikeWithExpand;
-      };
 
   let { data } = $props();
   const pendingRequests = $derived(data.pendingRequests as FollowWithUser[]);
@@ -72,16 +57,6 @@
   // Track users we've followed back (for optimistic UI)
   let followedBackIds = $state<string[]>([]);
   let loadingFollowBack = $state<string | null>(null);
-
-  function getAvatarUrl(user: UsersResponse) {
-    if (!user.avatar) return null;
-    return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
-  }
-
-  function getPostThumbnailUrl(post: PostsResponse) {
-    if (!post.images || post.images.length === 0) return null;
-    return pb.files.getURL(post, post.images[0], { thumb: "100x100" });
-  }
 
   function isFollowing(userId: string) {
     return (
@@ -146,11 +121,19 @@
     }
   }
 
-  function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+  const acceptedRequestIds = $derived(
+    new Set(acceptedRequests.map((r) => r.id)),
+  );
+
+  function formatActivityDate(dateStr: string) {
+    return formatDate(dateStr, {
       month: "short",
       day: "numeric",
     });
+  }
+
+  function isProcessing(requestId: string) {
+    return processingIds.has(requestId);
   }
 
   // Build a unified, sorted list of items
@@ -218,232 +201,29 @@
   <h1 class="mb-6 text-xl font-semibold">Activity</h1>
 
   {#if allItems.length === 0}
-    <div class="bg-card rounded-xl border p-8 text-center">
-      <div
-        class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
-      >
+    <EmptyStateCard
+      title="No activity"
+      description="When people interact with your account, you'll see it here"
+    >
+      {#snippet icon()}
         <span class="icon-[lucide--bell] text-muted-foreground h-6 w-6"></span>
-      </div>
-      <h2 class="font-medium">No activity</h2>
-      <p class="text-muted-foreground mt-1 text-sm">
-        When people interact with your account, you'll see it here
-      </p>
-    </div>
+      {/snippet}
+    </EmptyStateCard>
   {:else}
     <div class="space-y-3">
       {#each allItems as item (item.id)}
-        {#if item.kind === "follow_request"}
-          {@const request = item.request}
-          {@const follower = request.expand?.follower}
-          {@const isAccepted = acceptedRequests.some(
-            (r) => r.id === request.id,
-          )}
-          {#if follower}
-            <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
-              <a
-                href={resolve(`/u/${follower.username}`)}
-                class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
-              >
-                {#if getAvatarUrl(follower)}
-                  <img
-                    src={getAvatarUrl(follower)}
-                    alt={follower.username}
-                    class="h-full w-full object-cover"
-                  />
-                {:else}
-                  <span
-                    class="icon-[lucide--user] text-muted-foreground h-5 w-5"
-                  ></span>
-                {/if}
-              </a>
-
-              <div class="min-w-0 flex-1">
-                {#if isAccepted}
-                  <p class="text-sm">
-                    <a
-                      href={resolve(`/u/${follower.username}`)}
-                      class="font-medium hover:underline"
-                    >
-                      {follower.name || "@" + follower.username}
-                    </a>
-                    started following you
-                  </p>
-                {:else}
-                  <a
-                    href={resolve(`/u/${follower.username}`)}
-                    class="block truncate font-medium hover:underline"
-                  >
-                    {follower.name || "@" + follower.username}
-                  </a>
-                {/if}
-                <p class="text-muted-foreground truncate text-xs">
-                  {#if !isAccepted && follower.name}
-                    @{follower.username} &middot;
-                  {/if}
-                  {formatDate(request.created)}
-                </p>
-              </div>
-
-              <div class="flex flex-shrink-0 gap-2">
-                {#if isAccepted}
-                  {#if !isFollowing(follower.id)}
-                    {#if isPendingRequest(follower.id)}
-                      <span class="text-muted-foreground text-sm"
-                        >Requested</span
-                      >
-                    {:else}
-                      <Button
-                        size="sm"
-                        onclick={() => handleFollowBack(follower.id)}
-                        disabled={loadingFollowBack === follower.id}
-                      >
-                        {#if loadingFollowBack === follower.id}
-                          Following...
-                        {:else}
-                          Follow back
-                        {/if}
-                      </Button>
-                    {/if}
-                  {:else}
-                    <span class="text-muted-foreground text-sm">Following</span>
-                  {/if}
-                {:else}
-                  <Button
-                    size="sm"
-                    onclick={() => handleAccept(request)}
-                    disabled={processingIds.has(request.id)}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onclick={() => handleDecline(request)}
-                    disabled={processingIds.has(request.id)}
-                  >
-                    Decline
-                  </Button>
-                {/if}
-              </div>
-            </div>
-          {/if}
-        {:else if item.kind === "follow"}
-          {@const follow = item.follow}
-          {@const follower = follow.expand?.follower}
-          {#if follower}
-            <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
-              <a
-                href={resolve(`/u/${follower.username}`)}
-                class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
-              >
-                {#if getAvatarUrl(follower)}
-                  <img
-                    src={getAvatarUrl(follower)}
-                    alt={follower.username}
-                    class="h-full w-full object-cover"
-                  />
-                {:else}
-                  <span
-                    class="icon-[lucide--user] text-muted-foreground h-5 w-5"
-                  ></span>
-                {/if}
-              </a>
-
-              <div class="min-w-0 flex-1">
-                <p class="text-sm">
-                  <a
-                    href={resolve(`/u/${follower.username}`)}
-                    class="font-medium hover:underline"
-                  >
-                    {follower.name || "@" + follower.username}
-                  </a>
-                  started following you
-                </p>
-                <p class="text-muted-foreground text-xs">
-                  {formatDate(follow.created)}
-                </p>
-              </div>
-
-              {#if !isFollowing(follower.id)}
-                {#if isPendingRequest(follower.id)}
-                  <span class="text-muted-foreground text-sm">Requested</span>
-                {:else}
-                  <Button
-                    size="sm"
-                    onclick={() => handleFollowBack(follower.id)}
-                    disabled={loadingFollowBack === follower.id}
-                  >
-                    {#if loadingFollowBack === follower.id}
-                      Following...
-                    {:else}
-                      Follow back
-                    {/if}
-                  </Button>
-                {/if}
-              {:else}
-                <span class="text-muted-foreground text-sm">Following</span>
-              {/if}
-            </div>
-          {/if}
-        {:else if item.kind === "like"}
-          {@const like = item.like}
-          {@const likeUser = like.expand?.user}
-          {@const likePost = like.expand?.post}
-          {#if likeUser}
-            <div class="bg-card flex items-center gap-3 rounded-xl border p-4">
-              <a
-                href={resolve(`/u/${likeUser.username}`)}
-                class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
-              >
-                {#if getAvatarUrl(likeUser)}
-                  <img
-                    src={getAvatarUrl(likeUser)}
-                    alt={likeUser.username}
-                    class="h-full w-full object-cover"
-                  />
-                {:else}
-                  <span
-                    class="icon-[lucide--user] text-muted-foreground h-5 w-5"
-                  ></span>
-                {/if}
-              </a>
-
-              <div class="min-w-0 flex-1">
-                <p class="text-sm">
-                  <a
-                    href={resolve(`/u/${likeUser.username}`)}
-                    class="font-medium hover:underline"
-                  >
-                    {likeUser.name || "@" + likeUser.username}
-                  </a>
-                  liked your post
-                </p>
-                <p class="text-muted-foreground text-xs">
-                  {formatDate(like.created)}
-                </p>
-              </div>
-
-              {#if likePost}
-                <a
-                  href={resolve(`/post/${likePost.id}`)}
-                  class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded"
-                >
-                  {#if getPostThumbnailUrl(likePost)}
-                    <img
-                      src={getPostThumbnailUrl(likePost)}
-                      alt="Post"
-                      class="h-full w-full object-cover"
-                    />
-                  {:else}
-                    <span
-                      class="icon-[lucide--image] text-muted-foreground h-5 w-5"
-                    ></span>
-                  {/if}
-                </a>
-              {/if}
-            </div>
-          {/if}
-        {/if}
+        <ActivityListItem
+          {item}
+          {acceptedRequestIds}
+          {isFollowing}
+          {isPendingRequest}
+          {isProcessing}
+          {loadingFollowBack}
+          onAccept={handleAccept}
+          onDecline={handleDecline}
+          onFollowBack={handleFollowBack}
+          formatDate={formatActivityDate}
+        />
       {/each}
     </div>
   {/if}

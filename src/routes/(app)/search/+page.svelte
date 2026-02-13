@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { resolve } from "$app/paths";
+  import UserListItem from "$lib/components/UserListItem.svelte";
   import { pb } from "$lib/pocketbase";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
@@ -11,11 +11,6 @@
   let hasSearched = $state(false);
 
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-  function getAvatarUrl(user: UsersResponse) {
-    if (!user.avatar) return null;
-    return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
-  }
 
   async function searchUsers() {
     const searchQuery = query.trim();
@@ -100,42 +95,21 @@
   {:else if results.length > 0}
     <div class="space-y-2">
       {#each results as user (user.id)}
-        <a
-          href={resolve(`/u/${user.username}`)}
-          class="bg-card hover:bg-accent flex items-center gap-3 rounded-xl border p-4 transition-colors"
+        <UserListItem
+          {user}
+          avatarClass="h-11 w-11"
+          className="bg-card hover:bg-accent rounded-xl border p-4 transition-colors"
         >
-          <div
-            class="bg-muted flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
-          >
-            {#if getAvatarUrl(user)}
-              <img
-                src={getAvatarUrl(user)}
-                alt={user.username}
-                class="h-full w-full object-cover"
-              />
-            {:else}
-              <span class="icon-[lucide--user] text-muted-foreground h-5 w-5"
-              ></span>
+          {#snippet trailing()}
+            {#if user.isPublic}
+              <span
+                class="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
+              >
+                Public
+              </span>
             {/if}
-          </div>
-
-          <div class="min-w-0 flex-1">
-            <p class="truncate font-medium">
-              {user.name || "@" + user.username}
-            </p>
-            <p class="text-muted-foreground truncate text-sm">
-              {user.name ? "@" + user.username : ""}
-            </p>
-          </div>
-
-          {#if user.isPublic}
-            <span
-              class="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
-            >
-              Public
-            </span>
-          {/if}
-        </a>
+          {/snippet}
+        </UserListItem>
       {/each}
     </div>
   {:else if !hasSearched}

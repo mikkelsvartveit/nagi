@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
-  import { resolve } from "$app/paths";
+  import UserListItem from "$lib/components/UserListItem.svelte";
   import { pb } from "$lib/pocketbase";
   import { Button } from "$lib/components/ui/button";
   import type { FollowsResponse, UsersResponse } from "$lib/pocketbase-typegen";
@@ -16,11 +16,6 @@
   let addedFollowIds = $state<string[]>([]);
 
   let loadingFollow = $state<string | null>(null);
-
-  function getAvatarUrl(user: UsersResponse) {
-    if (!user?.avatar) return null;
-    return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
-  }
 
   function isFollowing(userId: string) {
     return (
@@ -82,36 +77,7 @@
           <div
             class="bg-card flex items-center justify-between rounded-xl border p-4"
           >
-            <a
-              href={resolve(`/u/${followerUser.username}`)}
-              class="flex min-w-0 flex-1 items-center gap-3"
-            >
-              <div
-                class="bg-muted flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
-              >
-                {#if getAvatarUrl(followerUser)}
-                  <img
-                    src={getAvatarUrl(followerUser)}
-                    alt={followerUser.username}
-                    class="h-full w-full object-cover"
-                  />
-                {:else}
-                  <span
-                    class="icon-[lucide--user] text-muted-foreground h-5 w-5"
-                  ></span>
-                {/if}
-              </div>
-              <div class="min-w-0">
-                <p class="truncate font-medium">
-                  {followerUser.name || "@" + followerUser.username}
-                </p>
-                {#if followerUser.name}
-                  <p class="text-muted-foreground truncate text-sm">
-                    @{followerUser.username}
-                  </p>
-                {/if}
-              </div>
-            </a>
+            <UserListItem user={followerUser} className="flex-1" />
             {#if !isFollowing(followerUser.id)}
               {#if isPendingRequest(followerUser.id)}
                 <span class="text-muted-foreground text-sm">Requested</span>

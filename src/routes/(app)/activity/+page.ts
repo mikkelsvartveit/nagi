@@ -1,17 +1,7 @@
 import { pb } from "$lib/pocketbase";
-import type {
-  FollowsResponse,
-  LikesResponse,
-  PostsResponse,
-  UsersResponse,
-} from "$lib/pocketbase-typegen";
+import type { FollowWithUser, LikeWithExpand } from "./activity-types";
+import type { FollowsResponse } from "$lib/pocketbase-typegen";
 import type { PageLoad } from "./$types";
-
-export type FollowWithUser = FollowsResponse<{ follower: UsersResponse }>;
-export type LikeWithExpand = LikesResponse<{
-  user: UsersResponse;
-  post: PostsResponse;
-}>;
 
 export const load: PageLoad = async () => {
   const user = pb?.authStore?.model;

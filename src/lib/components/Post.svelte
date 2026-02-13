@@ -1,9 +1,10 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { getUserAvatarUrl } from "$lib/pocketbase-media";
   import { pb } from "$lib/pocketbase";
+  import { formatDate } from "$lib/utils";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
-  import * as Dialog from "$lib/components/ui/dialog";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import type {
     LikesResponse,
@@ -11,12 +12,13 @@
     UsersResponse,
   } from "$lib/pocketbase-typegen";
 
-  type PostWithUser = PostsResponse<{ user: UsersResponse }>;
-
   let {
     post,
     likedPostIds = new Set<string>(),
-  }: { post: PostWithUser; likedPostIds?: Set<string> } = $props();
+  }: {
+    post: PostsResponse<{ user: UsersResponse }>;
+    likedPostIds?: Set<string>;
+  } = $props();
   const postUser = $derived(post.expand?.user as UsersResponse | undefined);
   const currentUser = $derived(pb.authStore.model);
   const isOwner = $derived(currentUser?.id === post.user);
@@ -40,11 +42,6 @@
   // Double-tap state
   let lastTapTime = $state(0);
   let showHeartAnimation = $state(false);
-
-  // Likes dialog (for post owner)
-  let likesDialogOpen = $state(false);
-  let likesUsers = $state<UsersResponse[]>([]);
-  let likesLoading = $state(false);
 
   // Track container height based on tallest image
   let containerHeight = $state(0);
@@ -161,18 +158,8 @@
     }
   }
 
-  function getAvatarUrl() {
-    if (!postUser?.avatar) return null;
-    return pb.files.getURL(postUser, postUser.avatar, { thumb: "100x100" });
-  }
-
-  function getLikeUserAvatarUrl(user: UsersResponse) {
-    if (!user.avatar) return null;
-    return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
-  }
-
-  function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+  function formatPostDate(dateStr: string) {
+    return formatDate(dateStr, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -186,9 +173,9 @@
     <div
       class="bg-muted flex h-9 w-9 items-center justify-center overflow-hidden rounded-full"
     >
-      {#if getAvatarUrl()}
+      {#if getUserAvatarUrl(postUser)}
         <img
-          src={getAvatarUrl()}
+          src={getUserAvatarUrl(postUser)}
           alt={postUser?.username || "User"}
           class="h-full w-full object-cover"
         />
@@ -344,7 +331,7 @@
     {/if}
 
     <!-- Date -->
-    <p class="text-muted-foreground text-xs">{formatDate(post.created)}</p>
+    <p class="text-muted-foreground text-xs">{formatPostDate(post.created)}</p>
   </div>
 
   <!-- Delete confirmation dialog -->
@@ -373,64 +360,6 @@
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>
-
-  <!-- Likes dialog (post owner only) -->
-  <Dialog.Root bind:open={likesDialogOpen}>
-    <Dialog.Content class="max-h-[80vh] sm:max-w-md">
-      <Dialog.Header>
-        <Dialog.Title>Likes</Dialog.Title>
-      </Dialog.Header>
-      <div class="max-h-[60vh] overflow-y-auto">
-        {#if likesLoading}
-          <div class="flex justify-center py-8">
-            <span
-              class="icon-[lucide--loader-2] text-muted-foreground h-6 w-6 animate-spin"
-            ></span>
-          </div>
-        {:else if likesUsers.length === 0}
-          <p class="text-muted-foreground py-8 text-center text-sm">
-            No likes yet
-          </p>
-        {:else}
-          <div class="space-y-3">
-            {#each likesUsers as likeUser (likeUser.id)}
-              <a
-                href={resolve(`/u/${likeUser.username}`)}
-                class="hover:bg-accent flex items-center gap-3 rounded-lg p-2 transition-colors"
-                onclick={() => (likesDialogOpen = false)}
-              >
-                <div
-                  class="bg-muted flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full"
-                >
-                  {#if getLikeUserAvatarUrl(likeUser)}
-                    <img
-                      src={getLikeUserAvatarUrl(likeUser)}
-                      alt={likeUser.username}
-                      class="h-full w-full object-cover"
-                    />
-                  {:else}
-                    <span
-                      class="icon-[lucide--user] text-muted-foreground h-5 w-5"
-                    ></span>
-                  {/if}
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-medium">
-                    {likeUser.name || "@" + likeUser.username}
-                  </p>
-                  {#if likeUser.name}
-                    <p class="text-muted-foreground truncate text-xs">
-                      @{likeUser.username}
-                    </p>
-                  {/if}
-                </div>
-              </a>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </Dialog.Content>
-  </Dialog.Root>
 </article>
 
 <style>

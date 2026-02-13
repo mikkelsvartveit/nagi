@@ -1,19 +1,14 @@
+import { getLikedPostIdsForPosts } from "$lib/likes";
 import { pb } from "$lib/pocketbase";
-import type {
-  LikesResponse,
-  PostsResponse,
-  UsersResponse,
-} from "$lib/pocketbase-typegen";
+import type { PostsResponse, UsersResponse } from "$lib/pocketbase-typegen";
 import type { PageLoad } from "./$types";
-
-type PostWithUser = PostsResponse<{ user: UsersResponse }>;
 
 export const load: PageLoad = async () => {
   const user = pb?.authStore?.model;
 
   if (!user) {
     return {
-      posts: [] as PostWithUser[],
+      posts: [] as PostsResponse<{ user: UsersResponse }>[],
       followersCount: 0,
       followingCount: 0,
       likedPostIds: [] as string[],
@@ -21,7 +16,7 @@ export const load: PageLoad = async () => {
   }
 
   const [posts, followersResult, followingResult] = await Promise.all([
-    pb.collection("posts").getFullList<PostWithUser>({
+    pb.collection("posts").getFullList<PostsResponse<{ user: UsersResponse }>>({
       filter: `user = "${user.id}"`,
       sort: "-created",
       expand: "user",
@@ -38,16 +33,11 @@ export const load: PageLoad = async () => {
   ]);
 
   // Fetch current user's likes for their own posts
-  let likedPostIds: string[] = [];
-  if (posts.length > 0) {
-    const postIds = posts.map((p) => p.id);
-    const likesFilter = postIds.map((id) => `post = "${id}"`).join(" || ");
-    const likes = await pb.collection("likes").getFullList<LikesResponse>({
-      filter: `user = "${user.id}" && (${likesFilter})`,
-      requestKey: "profileLikes",
-    });
-    likedPostIds = likes.map((l) => l.post);
-  }
+  const likedPostIds = await getLikedPostIdsForPosts(
+    user.id,
+    posts,
+    "profileLikes",
+  );
 
   return {
     posts,

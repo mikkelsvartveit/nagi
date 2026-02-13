@@ -1,13 +1,11 @@
+import { getLikedPostIdsForPosts } from "$lib/likes";
 import { pb } from "$lib/pocketbase";
 import type {
   FollowsResponse,
-  LikesResponse,
   PostsResponse,
   UsersResponse,
 } from "$lib/pocketbase-typegen";
 import type { PageLoad } from "./$types";
-
-type PostWithUser = PostsResponse<{ user: UsersResponse }>;
 
 export const load: PageLoad = async ({ params }) => {
   const currentUser = pb?.authStore?.model;
@@ -21,7 +19,7 @@ export const load: PageLoad = async ({ params }) => {
   } catch {
     return {
       profileUser: null,
-      posts: [] as PostWithUser[],
+      posts: [] as PostsResponse<{ user: UsersResponse }>[],
       followStatus: null,
       isOwnProfile: false,
       likedPostIds: [] as string[],
@@ -55,24 +53,25 @@ export const load: PageLoad = async ({ params }) => {
     profileUser.isPublic ||
     (followStatus && followStatus.accepted);
 
-  let posts: PostWithUser[] = [];
+  let posts: PostsResponse<{ user: UsersResponse }>[] = [];
   let likedPostIds: string[] = [];
 
   if (canViewPosts) {
-    posts = await pb.collection("posts").getFullList<PostWithUser>({
-      filter: `user = "${profileUser.id}"`,
-      sort: "-created",
-      expand: "user",
-    });
+    posts = await pb
+      .collection("posts")
+      .getFullList<PostsResponse<{ user: UsersResponse }>>({
+        filter: `user = "${profileUser.id}"`,
+        sort: "-created",
+        expand: "user",
+      });
 
     // Fetch current user's likes for these posts
-    if (currentUser && posts.length > 0) {
-      const postIdFilter = posts.map((p) => `post = "${p.id}"`).join(" || ");
-      const likes = await pb.collection("likes").getFullList<LikesResponse>({
-        filter: `user = "${currentUser.id}" && (${postIdFilter})`,
-        requestKey: "userProfileLikes",
-      });
-      likedPostIds = likes.map((l) => l.post);
+    if (currentUser) {
+      likedPostIds = await getLikedPostIdsForPosts(
+        currentUser.id,
+        posts,
+        "userProfileLikes",
+      );
     }
   }
 

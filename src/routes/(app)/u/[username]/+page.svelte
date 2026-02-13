@@ -1,19 +1,21 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
+  import EmptyStateCard from "$lib/components/EmptyStateCard.svelte";
+  import { getUserAvatarUrl } from "$lib/pocketbase-media";
   import { pb } from "$lib/pocketbase";
   import { Button } from "$lib/components/ui/button";
-  import PostCard from "$lib/components/PostCard.svelte";
+  import Post from "$lib/components/Post.svelte";
   import type {
     FollowsResponse,
     PostsResponse,
     UsersResponse,
   } from "$lib/pocketbase-typegen";
 
-  type PostWithUser = PostsResponse<{ user: UsersResponse }>;
-
   let { data } = $props();
   const profileUser = $derived(data.profileUser as UsersResponse | null);
-  const posts = $derived(data.posts as PostWithUser[]);
+  const posts = $derived(
+    data.posts as PostsResponse<{ user: UsersResponse }>[],
+  );
   const isOwnProfile = $derived(data.isOwnProfile);
   const serverFollowStatus = $derived(
     data.followStatus as FollowsResponse | null,
@@ -36,13 +38,6 @@
   const effectiveFollowStatus = $derived(
     localFollowStatus === undefined ? serverFollowStatus : localFollowStatus,
   );
-
-  function getAvatarUrl() {
-    if (!profileUser?.avatar) return null;
-    return pb.files.getURL(profileUser, profileUser.avatar, {
-      thumb: "320x320",
-    });
-  }
 
   async function handleFollow() {
     if (!profileUser) return;
@@ -109,9 +104,9 @@
     <div
       class="bg-muted mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full"
     >
-      {#if getAvatarUrl()}
+      {#if getUserAvatarUrl(profileUser, "320x320")}
         <img
-          src={getAvatarUrl()}
+          src={getUserAvatarUrl(profileUser, "320x320")}
           alt="Profile"
           class="h-full w-full object-cover"
         />
@@ -149,33 +144,25 @@
 
   <!-- Posts -->
   {#if !canViewPosts}
-    <div class="bg-card mt-8 rounded-xl border p-8 text-center">
-      <div
-        class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
-      >
+    <EmptyStateCard
+      className="mt-8"
+      title="This account is private"
+      description="Follow this account to see their posts"
+    >
+      {#snippet icon()}
         <span class="icon-[lucide--lock] text-muted-foreground h-6 w-6"></span>
-      </div>
-      <h2 class="font-medium">This account is private</h2>
-      <p class="text-muted-foreground mt-1 text-sm">
-        Follow this account to see their posts
-      </p>
-    </div>
+      {/snippet}
+    </EmptyStateCard>
   {:else if posts.length === 0}
-    <div class="bg-card mt-8 rounded-xl border p-8 text-center">
-      <div
-        class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
-      >
-        <span class="icon-[lucide--image] text-muted-foreground h-6 w-6"></span>
-      </div>
-      <h2 class="font-medium">No posts yet</h2>
-      <p class="text-muted-foreground mt-1 text-sm">
-        This user hasn't posted anything yet
-      </p>
-    </div>
+    <EmptyStateCard
+      className="mt-8"
+      title="No posts yet"
+      description="This user hasn't posted anything yet"
+    />
   {:else}
     <div class="mt-10 space-y-10">
       {#each posts as post (post.id)}
-        <PostCard {post} {likedPostIds} />
+        <Post {post} {likedPostIds} />
       {/each}
     </div>
   {/if}

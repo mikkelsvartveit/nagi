@@ -2,7 +2,8 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { resolve } from "$app/paths";
-  import { pb } from "$lib/pocketbase";
+  import { getUserAvatarUrl } from "$lib/pocketbase-media";
+  import type { UsersResponse } from "$lib/pocketbase-typegen";
 
   let { data, children } = $props();
   const user = $derived(data.user);
@@ -21,10 +22,7 @@
     }
   });
 
-  function getAvatarUrl() {
-    if (!user?.avatar) return null;
-    return pb.files.getURL(user, user.avatar, { thumb: "100x100" });
-  }
+  const avatarUrl = $derived(getUserAvatarUrl(user as UsersResponse | null));
 </script>
 
 {#if user}
@@ -97,9 +95,9 @@
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >
-          {#if getAvatarUrl()}
+          {#if avatarUrl}
             <img
-              src={getAvatarUrl()}
+              src={avatarUrl}
               alt="Profile"
               class="h-6 w-6 rounded-full object-cover {currentPath ===
               '/profile/'
