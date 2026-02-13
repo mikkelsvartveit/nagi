@@ -22,14 +22,24 @@ export const load: PageLoad = async () => {
   const following = await pb
     .collection("follows")
     .getFullList<FollowsResponse>({
-      filter: `follower = "${user.id}"`,
+      filter: `follower = "${user.id}" && accepted = true`,
       requestKey: "followingCheck",
     });
 
+  // Get pending follow requests sent by current user
+  const pendingFollowing = await pb
+    .collection("follows")
+    .getFullList<FollowsResponse>({
+      filter: `follower = "${user.id}" && accepted = false`,
+      requestKey: "pendingFollowingCheck",
+    });
+
   const followingIds = following.map((f) => f.following);
+  const pendingFollowingIds = pendingFollowing.map((f) => f.following);
 
   return {
     followers,
     followingIds,
+    pendingFollowingIds,
   };
 };

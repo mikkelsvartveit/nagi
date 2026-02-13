@@ -10,6 +10,7 @@
   let { data } = $props();
   const followers = $derived(data.followers as FollowWithUser[]);
   const initialFollowingIds = $derived(data.followingIds as string[]);
+  const pendingFollowingIds = $derived(data.pendingFollowingIds as string[]);
 
   // Track locally added follows (for optimistic UI update)
   let addedFollowIds = $state<string[]>([]);
@@ -25,6 +26,10 @@
     return (
       initialFollowingIds.includes(userId) || addedFollowIds.includes(userId)
     );
+  }
+
+  function isPendingRequest(userId: string) {
+    return pendingFollowingIds.includes(userId);
   }
 
   async function handleFollowBack(userId: string) {
@@ -130,17 +135,21 @@
               </div>
             </a>
             {#if !isFollowing(followerUser.id)}
-              <Button
-                size="sm"
-                onclick={() => handleFollowBack(followerUser.id)}
-                disabled={loadingFollow === followerUser.id}
-              >
-                {#if loadingFollow === followerUser.id}
-                  Following...
-                {:else}
-                  Follow back
-                {/if}
-              </Button>
+              {#if isPendingRequest(followerUser.id)}
+                <span class="text-muted-foreground text-sm">Requested</span>
+              {:else}
+                <Button
+                  size="sm"
+                  onclick={() => handleFollowBack(followerUser.id)}
+                  disabled={loadingFollow === followerUser.id}
+                >
+                  {#if loadingFollow === followerUser.id}
+                    Following...
+                  {:else}
+                    Follow back
+                  {/if}
+                </Button>
+              {/if}
             {:else}
               <span class="text-muted-foreground text-sm">Following</span>
             {/if}
