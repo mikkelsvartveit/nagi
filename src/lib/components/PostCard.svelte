@@ -121,29 +121,6 @@
     }
   }
 
-  async function openLikesDialog() {
-    if (!isOwner) return;
-    likesDialogOpen = true;
-    likesLoading = true;
-
-    try {
-      const likes = await pb
-        .collection("likes")
-        .getFullList<LikesResponse<{ user: UsersResponse }>>({
-          filter: `post = "${post.id}"`,
-          expand: "user",
-          sort: "-created",
-        });
-      likesUsers = likes
-        .map((l) => l.expand?.user)
-        .filter((u): u is UsersResponse => !!u);
-    } catch (err) {
-      console.error("Failed to load likes:", err);
-    } finally {
-      likesLoading = false;
-    }
-  }
-
   function handleImageLoad(e: Event) {
     const img = e.target as HTMLImageElement;
     const containerWidth = img.parentElement?.clientWidth || 0;
@@ -270,7 +247,7 @@
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
           <DropdownMenu.Item
-            class="!text-destructive hover:!text-destructive focus:!text-destructive"
+            class="text-destructive! hover:text-destructive! focus:text-destructive!"
             onclick={() => (deleteDialogOpen = true)}
           >
             <svg
@@ -283,7 +260,7 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="!text-destructive mr-2"
+              class="text-destructive! mr-2"
             >
               <path d="M3 6h18" />
               <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
@@ -317,7 +294,7 @@
     >
       {#each post.images as image, index (image)}
         <div
-          class="bg-muted flex w-full flex-shrink-0 snap-center items-center justify-center"
+          class="bg-muted flex w-full shrink-0 snap-center items-center justify-center"
         >
           <img
             src={getImageUrl(index)}
@@ -415,7 +392,7 @@
   <!-- Like button -->
   <div class="mb-2 flex items-center">
     <button
-      onclick={isOwner ? openLikesDialog : toggleLike}
+      onclick={toggleLike}
       class="group -ml-1 flex items-center px-1 transition-transform active:scale-90"
       aria-label={isLiked ? "Unlike" : "Like"}
       disabled={likeLoading}
@@ -532,7 +509,7 @@
                 onclick={() => (likesDialogOpen = false)}
               >
                 <div
-                  class="bg-muted flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-full"
+                  class="bg-muted flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full"
                 >
                   {#if getLikeUserAvatarUrl(likeUser)}
                     <img
