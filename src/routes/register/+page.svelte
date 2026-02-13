@@ -118,20 +118,8 @@
       <div
         class="bg-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-primary-foreground h-8 w-8"
-        >
-          <rect width="18" height="18" x="3" y="3" rx="2" />
-          <circle cx="9" cy="9" r="2" />
-          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-        </svg>
+        <span class="icon-[lucide--image] text-primary-foreground h-8 w-8"
+        ></span>
       </div>
       <h1 class="text-2xl font-bold tracking-tight">Create an account</h1>
       <p class="text-muted-foreground mt-1 text-sm">Join Nagi today</p>
@@ -233,26 +221,8 @@
 
           <Button type="submit" class="w-full" disabled={loading}>
             {#if loading}
-              <svg
-                class="mr-2 h-4 w-4 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+              <span class="icon-[lucide--loader-2] mr-2 h-4 w-4 animate-spin"
+              ></span>
               Creating account...
             {:else}
               Create account

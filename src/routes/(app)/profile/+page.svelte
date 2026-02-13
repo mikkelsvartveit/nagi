@@ -86,45 +86,20 @@
     <div class="flex items-center gap-2">
       <button
         onclick={() => window.location.reload()}
-        class="text-muted-foreground hover:text-foreground p-2"
+        class="text-muted-foreground hover:text-foreground flex items-center justify-center p-2"
         aria-label="Refresh"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="h-5 w-5"
-        >
-          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-          <path d="M16 16h5v5" />
-        </svg>
+        <span class="icon-[lucide--refresh-cw] inline-block h-5 w-5 shrink-0"
+        ></span>
       </button>
 
       <button
         onclick={handleLogout}
-        class="text-muted-foreground hover:text-foreground p-2"
+        class="text-muted-foreground hover:text-foreground flex items-center justify-center p-2"
         aria-label="Sign out"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="h-5 w-5"
-        >
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" x2="9" y1="12" y2="12" />
-        </svg>
+        <span class="icon-[lucide--log-out] inline-block h-5 w-5 shrink-0"
+        ></span>
       </button>
     </div>
   </div>
@@ -146,78 +121,24 @@
           class="h-full w-full object-cover"
         />
       {:else}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-muted-foreground h-10 w-10"
-        >
-          <circle cx="12" cy="8" r="5" />
-          <path d="M20 21a8 8 0 0 0-16 0" />
-        </svg>
+        <span class="icon-[lucide--user] text-muted-foreground h-10 w-10"
+        ></span>
       {/if}
     </div>
     <div
       class="bg-background absolute -top-0.5 -right-0.5 z-20 flex h-7 w-7 items-center justify-center rounded-full border shadow"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-muted-foreground h-3.5 w-3.5"
-      >
-        <path
-          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 1 1 3.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-        />
-      </svg>
+      <span class="icon-[lucide--pencil] text-muted-foreground h-3.5 w-3.5"
+      ></span>
     </div>
     <div
       class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
     >
       {#if uploading}
-        <svg
-          class="h-6 w-6 animate-spin text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
+        <span class="icon-[lucide--loader-2] h-6 w-6 animate-spin text-white"
+        ></span>
       {:else}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="h-6 w-6 text-white"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" x2="12" y1="3" y2="15" />
-        </svg>
+        <span class="icon-[lucide--upload] h-6 w-6 text-white"></span>
       {/if}
     </div>
   </button>
@@ -279,20 +200,7 @@
     <div
       class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-muted-foreground h-6 w-6"
-      >
-        <rect width="18" height="18" x="3" y="3" rx="2" />
-        <circle cx="9" cy="9" r="2" />
-        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-      </svg>
+      <span class="icon-[lucide--image] text-muted-foreground h-6 w-6"></span>
     </div>
     <h2 class="font-medium">No posts yet</h2>
     <p class="text-muted-foreground mt-1 text-sm">

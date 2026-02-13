@@ -45,19 +45,8 @@
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-6 w-6"
-          >
-            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
+          <span class="icon-[lucide--home] inline-block h-6 w-6 shrink-0"
+          ></span>
           <span class="text-xs">Feed</span>
         </a>
         <a
@@ -67,19 +56,8 @@
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-6 w-6"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
+          <span class="icon-[lucide--search] inline-block h-6 w-6 shrink-0"
+          ></span>
           <span class="text-xs">Search</span>
         </a>
         <a
@@ -89,20 +67,8 @@
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-6 w-6"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" />
-            <path d="M12 8v8" />
-            <path d="M8 12h8" />
-          </svg>
+          <span class="icon-[lucide--square-plus] inline-block h-6 w-6 shrink-0"
+          ></span>
           <span class="text-xs">Create</span>
         </a>
         <a
@@ -112,20 +78,8 @@
             ? 'text-primary'
             : 'text-muted-foreground'}"
         >
-          <div class="relative">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-6 w-6"
-            >
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-            </svg>
+          <div class="relative h-6 w-6 shrink-0">
+            <span class="icon-[lucide--bell] inline-block h-6 w-6"></span>
             {#if notificationBadgeCount > 0}
               <span
                 class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-medium text-white"
@@ -153,20 +107,9 @@
                 : ''}"
             />
           {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-6 w-6"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="10" r="3" />
-              <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
-            </svg>
+            <span
+              class="icon-[lucide--circle-user] inline-block h-6 w-6 shrink-0"
+            ></span>
           {/if}
           <span class="text-xs">Profile</span>
         </a>

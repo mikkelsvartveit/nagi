@@ -193,19 +193,7 @@
           class="h-full w-full object-cover"
         />
       {:else}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-muted-foreground h-4 w-4"
-        >
-          <circle cx="12" cy="8" r="5" />
-          <path d="M20 21a8 8 0 0 0-16 0" />
-        </svg>
+        <span class="icon-[lucide--user] text-muted-foreground h-4 w-4"></span>
       {/if}
     </div>
 
@@ -229,45 +217,15 @@
           class="text-muted-foreground hover:text-foreground rounded-md p-1 transition-colors"
           aria-label="Post options"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="5" r="1" />
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="19" r="1" />
-          </svg>
+          <span class="icon-[lucide--ellipsis-vertical] h-5 w-5"></span>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
           <DropdownMenu.Item
             class="text-destructive! hover:text-destructive! focus:text-destructive!"
             onclick={() => (deleteDialogOpen = true)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="text-destructive! mr-2"
-            >
-              <path d="M3 6h18" />
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-              <line x1="10" x2="10" y1="11" y2="17" />
-              <line x1="14" x2="14" y1="11" y2="17" />
-            </svg>
+            <span class="icon-[lucide--trash-2] text-destructive! mr-2 h-4 w-4"
+            ></span>
             Delete post
           </DropdownMenu.Item>
         </DropdownMenu.Content>
@@ -312,17 +270,9 @@
       <div
         class="heart-animation pointer-events-none absolute inset-0 flex items-center justify-center"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="white"
-          stroke="none"
-          class="h-24 w-24 drop-shadow-lg"
-        >
-          <path
-            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          />
-        </svg>
+        <span
+          class="icon-[lucide--heart] h-24 w-24 fill-current text-white drop-shadow-lg"
+        ></span>
       </div>
     {/if}
 
@@ -336,18 +286,7 @@
             ? 'hovering'
             : ''}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-5 w-5"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+          <span class="icon-[lucide--chevron-left] h-5 w-5"></span>
         </button>
       {/if}
       {#if currentImageIndex < post.images.length - 1}
@@ -358,18 +297,7 @@
             ? 'hovering'
             : ''}"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-5 w-5"
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
+          <span class="icon-[lucide--chevron-right] h-5 w-5"></span>
         </button>
       {/if}
 
@@ -398,32 +326,12 @@
       disabled={likeLoading}
     >
       {#if isLiked}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          stroke="none"
-          class="h-6 w-6 text-red-500"
-        >
-          <path
-            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          />
-        </svg>
+        <span class="icon-[lucide--heart] h-6 w-6 fill-current text-red-500"
+        ></span>
       {:else}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-muted-foreground group-hover:text-foreground h-6 w-6 transition-colors"
-        >
-          <path
-            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          />
-        </svg>
+        <span
+          class="icon-[lucide--heart] text-muted-foreground group-hover:text-foreground h-6 w-6 transition-colors"
+        ></span>
       {/if}
     </button>
   </div>
@@ -475,26 +383,9 @@
       <div class="max-h-[60vh] overflow-y-auto">
         {#if likesLoading}
           <div class="flex justify-center py-8">
-            <svg
-              class="text-muted-foreground h-6 w-6 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <span
+              class="icon-[lucide--loader-2] text-muted-foreground h-6 w-6 animate-spin"
+            ></span>
           </div>
         {:else if likesUsers.length === 0}
           <p class="text-muted-foreground py-8 text-center text-sm">
@@ -518,19 +409,9 @@
                       class="h-full w-full object-cover"
                     />
                   {:else}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="text-muted-foreground h-5 w-5"
-                    >
-                      <circle cx="12" cy="8" r="5" />
-                      <path d="M20 21a8 8 0 0 0-16 0" />
-                    </svg>
+                    <span
+                      class="icon-[lucide--user] text-muted-foreground h-5 w-5"
+                    ></span>
                   {/if}
                 </div>
                 <div class="min-w-0 flex-1">

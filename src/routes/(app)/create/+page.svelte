@@ -198,20 +198,7 @@
                   class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
                   aria-label="Remove image"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M18 6 6 18" />
-                    <path d="m6 6 12 12" />
-                  </svg>
+                  <span class="icon-[lucide--x] h-3.5 w-3.5"></span>
                 </button>
                 <div
                   class="absolute bottom-2 left-2 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white"
@@ -230,24 +217,9 @@
               for="images-input"
               class="border-input bg-background hover:bg-accent hover:text-accent-foreground flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed transition-colors"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="text-muted-foreground"
-              >
-                <path
-                  d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-                />
-                <line x1="9" x2="15" y1="12" y2="12" />
-                <line x1="12" x2="12" y1="9" y2="15" />
-              </svg>
+              <span
+                class="icon-[lucide--image-plus] text-muted-foreground h-6 w-6"
+              ></span>
               <span class="text-muted-foreground text-sm font-medium">
                 Click to add photos
               </span>
@@ -311,26 +283,8 @@
         disabled={loading || images.length === 0}
       >
         {#if loading}
-          <svg
-            class="mr-2 h-4 w-4 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
+          <span class="icon-[lucide--loader-2] mr-2 h-4 w-4 animate-spin"
+          ></span>
           Creating post...
         {:else}
           Share

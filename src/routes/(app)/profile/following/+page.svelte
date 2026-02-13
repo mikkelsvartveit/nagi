@@ -22,19 +22,7 @@
       <div
         class="bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-muted-foreground h-6 w-6"
-        >
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-        </svg>
+        <span class="icon-[lucide--users] text-muted-foreground h-6 w-6"></span>
       </div>
       <h2 class="font-medium">Not following anyone yet</h2>
       <p class="text-muted-foreground mt-1 text-sm">
@@ -60,19 +48,8 @@
                   class="h-full w-full object-cover"
                 />
               {:else}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="text-muted-foreground h-5 w-5"
-                >
-                  <circle cx="12" cy="8" r="5" />
-                  <path d="M20 21a8 8 0 0 0-16 0" />
-                </svg>
+                <span class="icon-[lucide--user] text-muted-foreground h-5 w-5"
+                ></span>
               {/if}
             </div>
             <div class="min-w-0">
