@@ -3,7 +3,7 @@ import { resolve } from "$app/paths";
 import { pb } from "$lib/pocketbase";
 
 export const load = async () => {
-  const user = pb?.authStore?.model;
+  const user = pb.authStore.isValid ? pb.authStore.model : null;
 
   if (user) {
     redirect(307, resolve("/home"));

@@ -1,10 +1,26 @@
+import { resolve } from "$app/paths";
+import { redirect } from "@sveltejs/kit";
 import { pb } from "$lib/pocketbase";
 import type { LayoutLoad } from "./$types";
 
 export const prerender = false;
 
 export const load: LayoutLoad = async () => {
-  const user = pb?.authStore?.model;
+  if (pb.authStore.isValid) {
+    try {
+      await pb.collection("users").authRefresh();
+    } catch {
+      pb.authStore.clear();
+    }
+  } else if (pb.authStore.token) {
+    pb.authStore.clear();
+  }
+
+  const user = pb.authStore.isValid ? pb.authStore.model : null;
+
+  if (!user) {
+    redirect(307, resolve("/"));
+  }
 
   let pendingRequestsCount = 0;
   let unreadLikesCount = 0;
