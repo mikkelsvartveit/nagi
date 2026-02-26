@@ -143,7 +143,7 @@
   }
 
   function getImageUrl(index: number) {
-    return pb.files.getURL(post, post.images[index]);
+    return pb.files.getURL(post, post.images[index], { thumb: "1080x0" });
   }
 
   function nextImage() {
