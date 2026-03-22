@@ -9,6 +9,7 @@
     imageError,
     onSelectImages,
     onRemoveImage,
+    onReorderImage,
   } = $props<{
     images: File[];
     imagePreviews: string[];
@@ -16,6 +17,7 @@
     imageError?: string;
     onSelectImages: (e: Event) => void;
     onRemoveImage: (index: number) => void;
+    onReorderImage: (index: number, direction: -1 | 1) => void;
   }>();
 </script>
 
@@ -32,6 +34,30 @@
           class="scroll-snap-align-start relative h-48 flex-shrink-0 overflow-hidden rounded-lg"
         >
           <img src={preview} alt="Preview {index + 1}" class="h-full w-auto" />
+
+          {#if images.length > 1}
+            <div class="absolute top-2 left-2 flex gap-2">
+              <button
+                type="button"
+                onclick={() => onReorderImage(index, -1)}
+                class="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Move image left"
+                disabled={index === 0}
+              >
+                <span class="icon-[lucide--arrow-left] h-4 w-4"></span>
+              </button>
+              <button
+                type="button"
+                onclick={() => onReorderImage(index, 1)}
+                class="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Move image right"
+                disabled={index === images.length - 1}
+              >
+                <span class="icon-[lucide--arrow-right] h-4 w-4"></span>
+              </button>
+            </div>
+          {/if}
+
           <button
             type="button"
             onclick={() => onRemoveImage(index)}

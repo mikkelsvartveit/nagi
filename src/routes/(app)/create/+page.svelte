@@ -81,6 +81,27 @@
     }
   }
 
+  function reorderImage(index: number, direction: -1 | 1) {
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= images.length) return;
+
+    const nextImages = [...images];
+    const nextPreviews = [...imagePreviews];
+
+    [nextImages[index], nextImages[targetIndex]] = [
+      nextImages[targetIndex],
+      nextImages[index],
+    ];
+    [nextPreviews[index], nextPreviews[targetIndex]] = [
+      nextPreviews[targetIndex],
+      nextPreviews[index],
+    ];
+
+    images = nextImages;
+    imagePreviews = nextPreviews;
+  }
+
   const validateForm = (): boolean => {
     const newErrors: FieldErrors = {};
 
@@ -181,6 +202,7 @@
         imageError={errors.images}
         onSelectImages={handleImageSelect}
         onRemoveImage={removeImage}
+        onReorderImage={reorderImage}
       />
 
       <div class="space-y-2">
