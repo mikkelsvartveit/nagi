@@ -11,7 +11,7 @@ export const load: PageLoad = async ({ params }) => {
   const currentUser = pb?.authStore?.model;
 
   // Get the profile user by username
-  let profileUser: UsersResponse | null = null;
+  let profileUser: UsersResponse;
   try {
     profileUser = await pb
       .collection("users")
