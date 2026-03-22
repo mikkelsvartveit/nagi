@@ -81,25 +81,22 @@
     }
   }
 
-  function moveImage(fromIndex: number, toIndex: number) {
-    if (
-      fromIndex === toIndex ||
-      fromIndex < 0 ||
-      toIndex < 0 ||
-      fromIndex >= images.length ||
-      toIndex >= images.length
-    ) {
-      return;
-    }
+  function reorderImage(index: number, direction: -1 | 1) {
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= images.length) return;
 
     const nextImages = [...images];
     const nextPreviews = [...imagePreviews];
 
-    const [movedImage] = nextImages.splice(fromIndex, 1);
-    const [movedPreview] = nextPreviews.splice(fromIndex, 1);
-
-    nextImages.splice(toIndex, 0, movedImage);
-    nextPreviews.splice(toIndex, 0, movedPreview);
+    [nextImages[index], nextImages[targetIndex]] = [
+      nextImages[targetIndex],
+      nextImages[index],
+    ];
+    [nextPreviews[index], nextPreviews[targetIndex]] = [
+      nextPreviews[targetIndex],
+      nextPreviews[index],
+    ];
 
     images = nextImages;
     imagePreviews = nextPreviews;
@@ -205,7 +202,7 @@
         imageError={errors.images}
         onSelectImages={handleImageSelect}
         onRemoveImage={removeImage}
-        onMoveImage={moveImage}
+        onReorderImage={reorderImage}
       />
 
       <div class="space-y-2">

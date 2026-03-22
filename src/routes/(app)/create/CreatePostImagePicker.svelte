@@ -9,7 +9,7 @@
     imageError,
     onSelectImages,
     onRemoveImage,
-    onMoveImage,
+    onReorderImage,
   } = $props<{
     images: File[];
     imagePreviews: string[];
@@ -17,41 +17,8 @@
     imageError?: string;
     onSelectImages: (e: Event) => void;
     onRemoveImage: (index: number) => void;
-    onMoveImage: (fromIndex: number, toIndex: number) => void;
+    onReorderImage: (index: number, direction: -1 | 1) => void;
   }>();
-
-  let draggedIndex = $state<number | null>(null);
-  let dragOverIndex = $state<number | null>(null);
-
-  function handleDragStart(index: number) {
-    draggedIndex = index;
-  }
-
-  function handleDragOver(e: DragEvent, index: number) {
-    e.preventDefault();
-
-    if (draggedIndex === null || draggedIndex === index) {
-      dragOverIndex = null;
-      return;
-    }
-
-    dragOverIndex = index;
-  }
-
-  function handleDrop(index: number) {
-    if (draggedIndex === null || draggedIndex === index) {
-      resetDragState();
-      return;
-    }
-
-    onMoveImage(draggedIndex, index);
-    resetDragState();
-  }
-
-  function resetDragState() {
-    draggedIndex = null;
-    dragOverIndex = null;
-  }
 </script>
 
 <div class="space-y-2">
@@ -64,25 +31,32 @@
     >
       {#each imagePreviews as preview, index (preview)}
         <div
-          class={`scroll-snap-align-start relative h-48 flex-shrink-0 overflow-hidden rounded-lg border border-transparent transition-all ${
-            dragOverIndex === index
-              ? "border-primary ring-primary/20 ring-4"
-              : ""
-          } ${draggedIndex === index ? "opacity-60" : ""}`}
-          role="listitem"
-          aria-grabbed={draggedIndex === index}
-          draggable={images.length > 1}
-          ondragstart={() => handleDragStart(index)}
-          ondragover={(e) => handleDragOver(e, index)}
-          ondragleave={() => {
-            if (dragOverIndex === index) {
-              dragOverIndex = null;
-            }
-          }}
-          ondrop={() => handleDrop(index)}
-          ondragend={resetDragState}
+          class="scroll-snap-align-start relative h-48 flex-shrink-0 overflow-hidden rounded-lg"
         >
           <img src={preview} alt="Preview {index + 1}" class="h-full w-auto" />
+
+          {#if images.length > 1}
+            <div class="absolute top-2 left-2 flex gap-2">
+              <button
+                type="button"
+                onclick={() => onReorderImage(index, -1)}
+                class="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Move image left"
+                disabled={index === 0}
+              >
+                <span class="icon-[lucide--arrow-left] h-4 w-4"></span>
+              </button>
+              <button
+                type="button"
+                onclick={() => onReorderImage(index, 1)}
+                class="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Move image right"
+                disabled={index === images.length - 1}
+              >
+                <span class="icon-[lucide--arrow-right] h-4 w-4"></span>
+              </button>
+            </div>
+          {/if}
 
           <button
             type="button"
@@ -97,14 +71,6 @@
           >
             {index + 1}/{images.length}
           </div>
-
-          {#if images.length > 1}
-            <div
-              class="absolute top-2 left-2 rounded-full bg-black/50 px-2 py-1 text-xs text-white"
-            >
-              Drag to reorder
-            </div>
-          {/if}
         </div>
       {/each}
     </div>
