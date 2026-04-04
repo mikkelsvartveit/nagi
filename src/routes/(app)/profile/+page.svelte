@@ -46,6 +46,21 @@
 
     try {
       await pb.collection("users").update(user.id, { isPublic: checked });
+
+      if (checked) {
+        // Accept all pending follow requests when going public
+        const pending = await pb
+          .collection("follows")
+          .getFullList({
+            filter: `following = "${user.id}" && accepted = false`,
+          });
+        await Promise.all(
+          pending.map((f) =>
+            pb.collection("follows").update(f.id, { accepted: true }),
+          ),
+        );
+      }
+
       await invalidateAll();
     } catch (error) {
       console.error("Failed to update privacy setting:", error);
