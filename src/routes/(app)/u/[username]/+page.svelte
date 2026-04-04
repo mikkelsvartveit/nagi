@@ -122,6 +122,19 @@
       {profileUser.name ? "@" + profileUser.username : ""}
     </p>
 
+    {#if profileUser.bio}
+      <p class="text-muted-foreground mx-auto mt-3 max-w-xs text-sm">
+        {profileUser.bio}
+      </p>
+    {/if}
+
+    {#if canViewPosts}
+      <div class="mt-4">
+        <p class="text-lg font-semibold">{posts.length}</p>
+        <p class="text-muted-foreground text-sm">Posts</p>
+      </div>
+    {/if}
+
     {#if !isOwnProfile}
       <div class="mt-4">
         {#if effectiveFollowStatus}
