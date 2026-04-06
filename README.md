@@ -1,51 +1,47 @@
-# Nagi
+# Svelte + PocketBase template app
 
-A mobile-first photo-sharing social media app built with SvelteKit and PocketBase.
+This is a starter project for building web applications with [Svelte](https://svelte.dev) and [PocketBase](https://pocketbase.io).
 
-## Features
+The project comes with the following libraries and tools preconfigured:
 
-- Create posts with up to 10 images, a caption, and a location
-- Image carousel with swipe navigation and dot indicators
-- Like posts (with double-tap heart animation)
-- Follow/unfollow users — private accounts require approval
-- Activity feed for likes and follow requests/notifications
-- Search users by username or name
-- User profiles with followers/following lists
-
-## Tech stack
-
-- [SvelteKit](https://kit.svelte.dev) (SPA mode) + [Svelte 5](https://svelte.dev) Runes
-- [PocketBase](https://pocketbase.io) — backend, database, file storage, and auth
-- [Tailwind CSS v4](https://tailwindcss.com) + [shadcn-svelte](https://www.shadcn-svelte.com/)
 - [TypeScript](https://www.typescriptlang.org)
-- [pocketbase-typegen](https://github.com/patmood/pocketbase-typegen) for auto-generated types
+- [SvelteKit](https://kit.svelte.dev) (in SPA mode)
+- [PocketBase](https://pocketbase.io) as a backend
+- [pocketbase-typegen](https://github.com/patmood/pocketbase-typegen) for automatic type generation
+- [Tailwind CSS](https://tailwindcss.com)
+- [shadcn-svelte](https://www.shadcn-svelte.com/) (UI component library)
+- [Prettier](https://prettier.io)
+- [ESLint](https://eslint.org)
+- [Docker](https://www.docker.com) (for easy deployment)
 
 ## Getting started
 
-1. Install dependencies and the PocketBase binary:
+1. Clone the repository
 
    ```bash
-   pnpm install
-   pnpm run install:pocketbase
+   git clone https://github.com/mikkelsvartveit/svelte-pocketbase-template.git
    ```
 
-2. Start the dev server (SvelteKit + PocketBase run in parallel):
+2. Install dependencies:
+
+   ```bash
+   npm install -g pnpm
+   pnpm install
+   pnpm install:pocketbase
+   ```
+
+3. Run PocketBase and the SvelteKit development server:
 
    ```bash
    pnpm run dev
    ```
 
-The app is available at `http://localhost:5173` and the PocketBase admin panel at `http://localhost:8090/_/`.
-
-## Other commands
-
-```bash
-pnpm run check     # TypeScript type check
-pnpm run lint      # Prettier + ESLint
-pnpm run format    # Auto-format with Prettier
-pnpm run typegen   # Regenerate PocketBase types (run after schema changes)
-```
+You can now access the app at `http://localhost:5173` and the PocketBase admin panel at `http://localhost:8090/_`.
 
 ## Deployment
 
-The project includes a Dockerfile that builds the SvelteKit app and serves it through PocketBase on port 8080. Mount a volume to `/pb/pb_data` to persist data.
+The project comes with a Dockerfile, which can be used to build and deploy the app on any platform (I personally use [Railway](https://railway.app)).
+
+The Dockerfile builds the SvelteKit app, and then copies the build files to `/pb/pb_public` in order to serve it through PocketBase.
+
+Make sure to mount a volume to the `/pb/pb_data` directory to persist PocketBase data.
