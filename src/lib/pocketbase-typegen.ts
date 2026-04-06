@@ -126,7 +126,6 @@ export type PostsRecord = {
 
 export type UsersRecord = {
 	avatar?: FileNameString
-	bio?: string
 	created: IsoAutoDateString
 	email: string
 	emailVisibility?: boolean
