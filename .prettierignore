@@ -6,6 +6,7 @@ yarn.lock
 # Pocketbase
 pocketbase/CHANGELOG.md
 pocketbase/LICENSE.md
+pocketbase/pb_migrations/
 
 # pocketbase-typegen
 src/lib/pocketbase-typegen.ts

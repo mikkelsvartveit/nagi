@@ -6,6 +6,8 @@
   import Post from "$lib/components/Post.svelte";
   import ProfileAvatarEditor from "./ProfileAvatarEditor.svelte";
   import ProfileTopBar from "./ProfileTopBar.svelte";
+  import { Button } from "$lib/components/ui/button";
+  import { Input } from "$lib/components/ui/input";
   import { Switch } from "$lib/components/ui/switch";
   import type { PostsResponse, UsersResponse } from "$lib/pocketbase-typegen";
 
@@ -20,6 +22,10 @@
 
   let uploading = $state(false);
   let updatingPrivacy = $state(false);
+  let editing = $state(false);
+  let savingProfile = $state(false);
+  let editName = $state("");
+  let editBio = $state("");
 
   async function handleAvatarChange(e: Event) {
     const input = e.target as HTMLInputElement;
@@ -37,6 +43,29 @@
       console.error("Failed to upload avatar:", error);
     } finally {
       uploading = false;
+    }
+  }
+
+  function startEditing() {
+    editName = user?.name || "";
+    editBio = user?.bio || "";
+    editing = true;
+  }
+
+  async function saveProfile() {
+    if (!user) return;
+    savingProfile = true;
+    try {
+      await pb
+        .collection("users")
+        .update(user.id, { name: editName, bio: editBio });
+      await pb.collection("users").authRefresh();
+      editing = false;
+      await invalidateAll();
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    } finally {
+      savingProfile = false;
     }
   }
 
@@ -65,6 +94,60 @@
 
 {#if user}
   <ProfileAvatarEditor {user} {uploading} onAvatarChange={handleAvatarChange} />
+
+  {#if !editing}
+    {#if user.bio}
+      <p class="text-foreground mx-auto mt-2 max-w-xs text-center">
+        {user.bio}
+      </p>
+    {/if}
+    <div class="mt-3 text-center">
+      <Button variant="outline" size="sm" onclick={startEditing}>
+        Edit profile
+      </Button>
+    </div>
+  {:else}
+    <div class="mx-auto mt-4 max-w-xs space-y-3">
+      <div>
+        <label for="edit-name" class="text-sm font-medium">Display name</label>
+        <Input
+          id="edit-name"
+          bind:value={editName}
+          placeholder="Display name"
+          class="mt-1"
+        />
+      </div>
+      <div>
+        <label for="edit-bio" class="text-sm font-medium">Bio</label>
+        <textarea
+          id="edit-bio"
+          bind:value={editBio}
+          placeholder="Write a short bio..."
+          maxlength={300}
+          rows={3}
+          class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring mt-1 flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+        ></textarea>
+      </div>
+      <div class="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="flex-1"
+          onclick={() => (editing = false)}
+        >
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          class="flex-1"
+          onclick={saveProfile}
+          disabled={savingProfile}
+        >
+          {savingProfile ? "Saving..." : "Save"}
+        </Button>
+      </div>
+    </div>
+  {/if}
 {/if}
 
 <!-- Stats -->
