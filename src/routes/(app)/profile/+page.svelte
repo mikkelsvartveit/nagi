@@ -97,9 +97,7 @@
 
   {#if !editing}
     {#if user.bio}
-      <p
-        class="text-muted-foreground mx-auto mt-2 max-w-xs text-center text-sm"
-      >
+      <p class="text-foreground mx-auto mt-2 max-w-xs text-center">
         {user.bio}
       </p>
     {/if}
