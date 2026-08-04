@@ -16,12 +16,14 @@ export const load: PageLoad = async () => {
   }
 
   const [postsResult, followersResult, followingResult] = await Promise.all([
-    pb.collection("posts").getList<PostsResponse<{ user: UsersResponse }>>(1, 50, {
-      filter: `user = "${user.id}"`,
-      sort: "-created",
-      expand: "user",
-      requestKey: "profilePosts",
-    }),
+    pb
+      .collection("posts")
+      .getList<PostsResponse<{ user: UsersResponse }>>(1, 50, {
+        filter: `user = "${user.id}"`,
+        sort: "-created",
+        expand: "user",
+        requestKey: "profilePosts",
+      }),
     pb.collection("follows").getList(1, 1, {
       filter: `following = "${user.id}" && accepted = true`,
       requestKey: "profileFollowers",

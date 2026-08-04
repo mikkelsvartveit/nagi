@@ -39,8 +39,7 @@
     localLikeOverride !== null ? localLikeOverride : liked,
   );
 
-  // Double-tap state
-  let lastTapTime = $state(0);
+  // Double-tap / double-click heart animation state
   let showHeartAnimation = $state(false);
 
   // Track container height based on tallest image
@@ -100,22 +99,15 @@
     }
   }
 
-  function handleDoubleTap() {
-    const now = Date.now();
-    if (now - lastTapTime < 300) {
-      // Double-tap detected
-      if (!isLiked) {
-        toggleLike();
-      }
-      // Show heart animation
-      showHeartAnimation = true;
-      setTimeout(() => {
-        showHeartAnimation = false;
-      }, 800);
-      lastTapTime = 0;
-    } else {
-      lastTapTime = now;
+  function handleDoubleClick() {
+    if (!isLiked) {
+      toggleLike();
     }
+    // Show heart animation
+    showHeartAnimation = true;
+    setTimeout(() => {
+      showHeartAnimation = false;
+    }, 800);
   }
 
   function handleImageLoad(e: Event) {
@@ -228,12 +220,13 @@
     onmouseenter={() => (isHovering = true)}
     onmouseleave={() => (isHovering = false)}
   >
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       bind:this={carouselEl}
       onscroll={handleScroll}
-      onclick={handleDoubleTap}
+      ondblclick={handleDoubleClick}
+      onkeydown={(e) => e.key === "Enter" && handleDoubleClick()}
+      role="button"
+      tabindex="0"
       class="scrollbar-none flex snap-x snap-mandatory overflow-x-auto"
       style="height: {containerHeight > 0 ? `${containerHeight}px` : 'auto'}"
     >

@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { invalidateAll } from "$app/navigation";
   import UserListItem from "$lib/components/UserListItem.svelte";
-  import { pb } from "$lib/pocketbase";
+  import { followUser } from "$lib/useFollowActions";
   import { Button } from "$lib/components/ui/button";
   import type { FollowsResponse, UsersResponse } from "$lib/pocketbase-typegen";
 
@@ -28,24 +27,10 @@
   }
 
   async function handleFollowBack(userId: string) {
-    const currentUser = pb.authStore.model;
-    if (!currentUser) return;
-
     loadingFollow = userId;
     try {
-      // Check if this user has a public profile
-      const targetUser = await pb
-        .collection("users")
-        .getOne<UsersResponse>(userId);
-
-      await pb.collection("follows").create({
-        follower: currentUser.id,
-        following: userId,
-        accepted: targetUser.isPublic ? true : false,
-      });
-
+      await followUser(userId);
       addedFollowIds = [...addedFollowIds, userId];
-      await invalidateAll();
     } catch (error) {
       console.error("Failed to follow back:", error);
     } finally {

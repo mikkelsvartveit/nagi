@@ -103,10 +103,12 @@
   }
 
   const validateForm = (): boolean => {
-    const newErrors: FieldErrors = {};
+    const newErrors: FieldErrors = { ...errors };
 
     if (images.length === 0) {
       newErrors.images = "At least one image is required";
+    } else {
+      delete newErrors.images;
     }
 
     errors = newErrors;

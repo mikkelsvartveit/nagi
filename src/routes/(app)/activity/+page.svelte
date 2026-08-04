@@ -8,9 +8,9 @@
     NotificationItem,
   } from "./activity-types";
   import { pb } from "$lib/pocketbase";
-  import type { UsersResponse } from "$lib/pocketbase-typegen";
   import { formatDate } from "$lib/utils";
   import { SvelteSet } from "svelte/reactivity";
+  import { followUser } from "$lib/useFollowActions";
 
   let { data } = $props();
   const pendingRequests = $derived(data.pendingRequests as FollowWithUser[]);
@@ -101,23 +101,10 @@
   }
 
   async function handleFollowBack(userId: string) {
-    const currentUser = pb.authStore.model;
-    if (!currentUser) return;
-
     loadingFollowBack = userId;
     try {
-      const targetUser = await pb
-        .collection("users")
-        .getOne<UsersResponse>(userId);
-
-      await pb.collection("follows").create({
-        follower: currentUser.id,
-        following: userId,
-        accepted: targetUser.isPublic ? true : false,
-      });
-
+      await followUser(userId);
       followedBackIds = [...followedBackIds, userId];
-      await invalidateAll();
     } catch (error) {
       console.error("Failed to follow back:", error);
     } finally {

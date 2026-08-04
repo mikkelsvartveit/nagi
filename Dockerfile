@@ -36,7 +36,7 @@ RUN unzip /tmp/pb.zip -d /pb/ && \
     rm /tmp/pb.zip
 
 COPY --from=vite-build /app/build /pb/pb_public
-COPY --from=vite-build /app/pocketbase/pb_migrations* /pb/pb_migrations
+COPY --from=vite-build /app/pocketbase/pb_migrations/ /pb/pb_migrations
 COPY --from=vite-build /app/pocketbase/pb_hooks* /pb/pb_hooks
 
 EXPOSE 8080

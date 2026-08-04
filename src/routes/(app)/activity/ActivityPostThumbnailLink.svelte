@@ -5,9 +5,7 @@
 
   let { post } = $props<{ post: PostsResponse }>();
 
-  const thumbnailUrl = $derived.by(() => {
-    return getPostThumbnailUrl(post);
-  });
+  const thumbnailUrl = $derived(getPostThumbnailUrl(post));
 </script>
 
 <a

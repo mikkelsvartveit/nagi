@@ -10,9 +10,7 @@
 
   let fileInput: HTMLInputElement | undefined = $state();
 
-  const avatarUrl = $derived.by(() => {
-    return getUserAvatarUrl(user, "320x320");
-  });
+  const avatarUrl = $derived(getUserAvatarUrl(user, "320x320"));
 </script>
 
 <div class="text-center">

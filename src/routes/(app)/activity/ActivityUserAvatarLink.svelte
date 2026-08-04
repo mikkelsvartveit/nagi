@@ -5,9 +5,7 @@
 
   let { user } = $props<{ user: UsersResponse }>();
 
-  const avatarUrl = $derived.by(() => {
-    return getUserAvatarUrl(user);
-  });
+  const avatarUrl = $derived(getUserAvatarUrl(user));
 </script>
 
 <a
