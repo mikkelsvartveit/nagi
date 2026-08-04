@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { resolve } from "$app/paths";
   import { getUserAvatarUrl } from "$lib/pocketbase-media";
@@ -14,13 +13,6 @@
   const isHomePath = $derived(
     currentPath === "/home" || currentPath === "/home/" || currentPath === "/",
   );
-
-  // Redirect to login if not authenticated
-  $effect(() => {
-    if (!user) {
-      goto(resolve("/login"));
-    }
-  });
 
   const avatarUrl = $derived(getUserAvatarUrl(user as UsersResponse | null));
 </script>

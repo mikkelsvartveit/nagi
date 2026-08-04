@@ -19,7 +19,7 @@ export const load: LayoutLoad = async () => {
   const user = pb.authStore.isValid ? pb.authStore.model : null;
 
   if (!user) {
-    redirect(307, resolve("/"));
+    redirect(307, resolve("/login"));
   }
 
   let pendingRequestsCount = 0;
@@ -48,8 +48,8 @@ export const load: LayoutLoad = async () => {
       pendingRequestsCount = requestsResult.totalItems;
       unreadLikesCount = likesResult.totalItems;
       unreadFollowsCount = followsResult.totalItems;
-    } catch {
-      // Ignore errors
+    } catch (err) {
+      console.error("Failed to load notification counts:", err);
     }
   }
 

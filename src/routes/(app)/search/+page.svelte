@@ -12,8 +12,13 @@
 
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+  /** Escape special PocketBase filter characters to prevent query injection */
+  function sanitizeFilterValue(value: string): string {
+    return value.replace(/["'\\]/g, "").trim();
+  }
+
   async function searchUsers() {
-    const searchQuery = query.trim();
+    const searchQuery = sanitizeFilterValue(query.trim());
     if (!searchQuery) {
       results = [];
       hasSearched = false;
