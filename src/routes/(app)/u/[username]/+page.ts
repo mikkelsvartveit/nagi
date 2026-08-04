@@ -57,9 +57,9 @@ export const load: PageLoad = async ({ params }) => {
   let likedPostIds: string[] = [];
 
   if (canViewPosts) {
-    posts = await pb
+    const postsResult = await pb
       .collection("posts")
-      .getFullList<PostsResponse<{ user: UsersResponse }>>({
+      .getList<PostsResponse<{ user: UsersResponse }>>(1, 50, {
         filter: `user = "${profileUser.id}"`,
         sort: "-created",
         expand: "user",
@@ -69,10 +69,12 @@ export const load: PageLoad = async ({ params }) => {
     if (currentUser) {
       likedPostIds = await getLikedPostIdsForPosts(
         currentUser.id,
-        posts,
+        postsResult.items,
         "userProfileLikes",
       );
     }
+
+    posts = postsResult.items;
   }
 
   return {

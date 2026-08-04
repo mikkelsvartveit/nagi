@@ -15,8 +15,8 @@ export const load: PageLoad = async () => {
     };
   }
 
-  const [posts, followersResult, followingResult] = await Promise.all([
-    pb.collection("posts").getFullList<PostsResponse<{ user: UsersResponse }>>({
+  const [postsResult, followersResult, followingResult] = await Promise.all([
+    pb.collection("posts").getList<PostsResponse<{ user: UsersResponse }>>(1, 50, {
       filter: `user = "${user.id}"`,
       sort: "-created",
       expand: "user",
@@ -35,12 +35,12 @@ export const load: PageLoad = async () => {
   // Fetch current user's likes for their own posts
   const likedPostIds = await getLikedPostIdsForPosts(
     user.id,
-    posts,
+    postsResult.items,
     "profileLikes",
   );
 
   return {
-    posts,
+    posts: postsResult.items,
     followersCount: followersResult.totalItems,
     followingCount: followingResult.totalItems,
     likedPostIds,

@@ -28,10 +28,10 @@ export const load: PageLoad = async () => {
   const allUserIds = [user.id, ...followedUserIds];
   const userFilter = allUserIds.map((id) => `user = "${id}"`).join(" || ");
 
-  // Fetch posts from followed users and self
-  const posts = await pb
+  // Fetch posts from followed users and self (capped at 50 most recent)
+  const postsResult = await pb
     .collection("posts")
-    .getFullList<PostsResponse<{ user: UsersResponse }>>({
+    .getList<PostsResponse<{ user: UsersResponse }>>(1, 50, {
       filter: userFilter,
       sort: "-created",
       expand: "user",
@@ -41,12 +41,12 @@ export const load: PageLoad = async () => {
   // Batch-fetch current user's likes for all feed posts
   const likedPostIds = await getLikedPostIdsForPosts(
     user.id,
-    posts,
+    postsResult.items,
     "feedLikes",
   );
 
   return {
-    posts,
+    posts: postsResult.items,
     likedPostIds,
   };
 };

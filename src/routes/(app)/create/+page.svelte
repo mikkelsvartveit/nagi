@@ -135,7 +135,7 @@
         reject(new Error("Upload failed"));
       });
 
-      xhr.open("POST", "/api/collections/posts/records");
+      xhr.open("POST", pb.buildURL("/api/collections/posts/records"));
 
       const token = pb.authStore.token;
       if (token) {

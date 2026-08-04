@@ -28,20 +28,24 @@
     if (likeIds.length === 0 && followIds.length === 0) return;
 
     const markAsRead = async () => {
-      await Promise.all([
-        ...likeIds.map((id) =>
-          pb
-            .collection("likes")
-            .update(id, { read: true })
-            .catch(() => {}),
-        ),
-        ...followIds.map((id) =>
-          pb
-            .collection("follows")
-            .update(id, { read: true })
-            .catch(() => {}),
-        ),
-      ]);
+      // Process in batches of 5 to avoid overwhelming the browser
+      const chunkSize = 5;
+      const allIds = [
+        ...likeIds.map((id) => ({ id, collection: "likes" as const })),
+        ...followIds.map((id) => ({ id, collection: "follows" as const })),
+      ];
+
+      for (let i = 0; i < allIds.length; i += chunkSize) {
+        const chunk = allIds.slice(i, i + chunkSize);
+        await Promise.all(
+          chunk.map(({ id, collection }) =>
+            pb
+              .collection(collection)
+              .update(id, { read: true })
+              .catch(() => {}),
+          ),
+        );
+      }
       await invalidateAll();
     };
 

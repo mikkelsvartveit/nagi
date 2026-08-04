@@ -32,17 +32,17 @@ export const load: LayoutLoad = async () => {
         // Pending follow requests
         pb.collection("follows").getList(1, 1, {
           filter: `following = "${user.id}" && accepted = false`,
-          requestKey: "pendingRequests",
+          requestKey: "layout_pendingRequests",
         }),
         // Unread likes on user's posts
         pb.collection("likes").getList(1, 1, {
           filter: `post.user = "${user.id}" && read = false`,
-          requestKey: "unreadLikes",
+          requestKey: "layout_unreadLikes",
         }),
         // Unread accepted follows
         pb.collection("follows").getList(1, 1, {
           filter: `following = "${user.id}" && accepted = true && read = false`,
-          requestKey: "unreadFollows",
+          requestKey: "layout_unreadFollows",
         }),
       ]);
       pendingRequestsCount = requestsResult.totalItems;
