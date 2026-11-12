@@ -15,7 +15,9 @@ export const load: PageLoad = async ({ params }) => {
   try {
     profileUser = await pb
       .collection("users")
-      .getFirstListItem<UsersResponse>(`username = "${params.username}"`);
+      .getFirstListItem<UsersResponse>(
+        pb.filter("username = {:username}", { username: params.username }),
+      );
   } catch {
     return {
       profileUser: null,
