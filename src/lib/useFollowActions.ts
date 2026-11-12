@@ -3,21 +3,21 @@ import { pb } from "$lib/pocketbase";
 import type { UsersResponse } from "$lib/pocketbase-typegen";
 
 /**
- * Follow a user — creates a follow record. Auto-accepts if the target has a public profile.
- * Returns the target user's ID on success.
+ * Follow a user. Public profiles are auto-accepted; private profiles get a
+ * pending request (the server's createRule rejects `accepted: true` for them).
+ * Reloads page data afterwards so follow/requested state comes from the server.
  */
-export async function followUser(userId: string): Promise<string> {
+export async function followUser(
+  target: Pick<UsersResponse, "id" | "isPublic">,
+): Promise<void> {
   const currentUser = pb.authStore.model;
   if (!currentUser) throw new Error("Not authenticated");
 
-  const targetUser = await pb.collection("users").getOne<UsersResponse>(userId);
-
   await pb.collection("follows").create({
     follower: currentUser.id,
-    following: userId,
-    accepted: targetUser.isPublic ? true : false,
+    following: target.id,
+    accepted: target.isPublic,
   });
 
   await invalidateAll();
-  return userId;
 }

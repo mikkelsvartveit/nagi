@@ -1,8 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
+  import { ClientResponseError } from "pocketbase";
   import { pb } from "$lib/pocketbase";
-  import type { PocketBaseError } from "$lib/pocketbase";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
@@ -64,25 +64,20 @@
       await pb.collection("users").authWithPassword(email, password);
       goto(resolve("/"));
     } catch (err) {
-      if (err instanceof Error && "originalError" in err) {
-        const pbError = err.originalError as PocketBaseError;
-        // Map PocketBase field errors to our error state
-        if (pbError.data?.username) {
-          errors.username = pbError.data.username.message;
-        }
-        if (pbError.data?.email) {
-          errors.email = pbError.data.email.message;
-        }
-        if (pbError.data?.password) {
-          errors.password = pbError.data.password.message;
-        }
-        if (pbError.data?.passwordConfirm) {
-          errors.passwordConfirm = pbError.data.passwordConfirm.message;
-        }
-        if (Object.keys(errors).length === 0) {
-          errors.general = "Something went wrong. Please try again.";
-        }
-      } else {
+      // Field validation errors live in the response body under `data`,
+      // e.g. { data: { email: { code: "validation_not_unique", message } } }
+      const fieldErrors: Record<string, { message?: string } | undefined> =
+        err instanceof ClientResponseError ? (err.response?.data ?? {}) : {};
+      for (const field of [
+        "username",
+        "email",
+        "password",
+        "passwordConfirm",
+      ] as const) {
+        const message = fieldErrors[field]?.message;
+        if (message) errors[field] = message;
+      }
+      if (Object.keys(errors).length === 0) {
         errors.general = "Something went wrong. Please try again.";
       }
     } finally {

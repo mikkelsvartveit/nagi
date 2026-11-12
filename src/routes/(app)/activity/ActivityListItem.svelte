@@ -4,6 +4,7 @@
   import ActivityPostThumbnailLink from "./ActivityPostThumbnailLink.svelte";
   import ActivityUserAvatarLink from "./ActivityUserAvatarLink.svelte";
   import type { FollowWithUser, NotificationItem } from "./activity-types";
+  import type { UsersResponse } from "$lib/pocketbase-typegen";
 
   let {
     item,
@@ -25,7 +26,7 @@
     loadingFollowBack: string | null;
     onAccept: (request: FollowWithUser) => Promise<void>;
     onDecline: (request: FollowWithUser) => Promise<void>;
-    onFollowBack: (userId: string) => Promise<void>;
+    onFollowBack: (user: UsersResponse) => Promise<void>;
     formatDate: (dateStr: string) => string;
   }>();
 </script>
@@ -73,7 +74,7 @@
             {:else}
               <Button
                 size="sm"
-                onclick={() => onFollowBack(follower.id)}
+                onclick={() => onFollowBack(follower)}
                 disabled={loadingFollowBack === follower.id}
               >
                 {#if loadingFollowBack === follower.id}
@@ -134,7 +135,7 @@
         {:else}
           <Button
             size="sm"
-            onclick={() => onFollowBack(follower.id)}
+            onclick={() => onFollowBack(follower)}
             disabled={loadingFollowBack === follower.id}
           >
             {#if loadingFollowBack === follower.id}
