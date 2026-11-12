@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { resolve } from "$app/paths";
   import { getUserAvatarUrl } from "$lib/pocketbase-media";
   import type { UsersResponse } from "$lib/pocketbase-typegen";
@@ -7,7 +7,7 @@
   let { data, children } = $props();
   const user = $derived(data.user);
   const notificationBadgeCount = $derived(data.notificationBadgeCount);
-  const currentPath = $derived($page.url.pathname);
+  const currentPath = $derived(page.url.pathname);
 
   // Check if current path is home
   const isHomePath = $derived(
