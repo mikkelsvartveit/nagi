@@ -20,6 +20,7 @@ export const load: PageLoad = async ({ params }) => {
     return {
       profileUser: null,
       posts: [] as PostsResponse<{ user: UsersResponse }>[],
+      postsCount: 0,
       followStatus: null,
       isOwnProfile: false,
       likedPostIds: [] as string[],
@@ -54,6 +55,7 @@ export const load: PageLoad = async ({ params }) => {
     (followStatus && followStatus.accepted);
 
   let posts: PostsResponse<{ user: UsersResponse }>[] = [];
+  let postsCount = 0;
   let likedPostIds: string[] = [];
 
   if (canViewPosts) {
@@ -75,11 +77,13 @@ export const load: PageLoad = async ({ params }) => {
     }
 
     posts = postsResult.items;
+    postsCount = postsResult.totalItems;
   }
 
   return {
     profileUser,
     posts,
+    postsCount,
     followStatus,
     isOwnProfile,
     likedPostIds,

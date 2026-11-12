@@ -9,6 +9,7 @@ export const load: PageLoad = async () => {
   if (!user) {
     return {
       posts: [] as PostsResponse<{ user: UsersResponse }>[],
+      postsCount: 0,
       followersCount: 0,
       followingCount: 0,
       likedPostIds: [] as string[],
@@ -43,6 +44,8 @@ export const load: PageLoad = async () => {
 
   return {
     posts: postsResult.items,
+    // The list is capped at 50, so use the server total for the stat
+    postsCount: postsResult.totalItems,
     followersCount: followersResult.totalItems,
     followingCount: followingResult.totalItems,
     likedPostIds,

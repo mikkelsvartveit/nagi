@@ -3,6 +3,7 @@
   import EmptyStateCard from "$lib/components/EmptyStateCard.svelte";
   import { getUserAvatarUrl } from "$lib/pocketbase-media";
   import { pb } from "$lib/pocketbase";
+  import { followUser } from "$lib/useFollowActions";
   import { Button } from "$lib/components/ui/button";
   import Post from "$lib/components/Post.svelte";
   import type {
@@ -16,42 +17,20 @@
   const posts = $derived(
     data.posts as PostsResponse<{ user: UsersResponse }>[],
   );
+  const postsCount = $derived(data.postsCount);
   const isOwnProfile = $derived(data.isOwnProfile);
-  const serverFollowStatus = $derived(
-    data.followStatus as FollowsResponse | null,
-  );
+  // Follow/unfollow both reload page data, so the server value is the source of truth
+  const followStatus = $derived(data.followStatus as FollowsResponse | null);
   const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
 
-  // Local state for optimistic updates: undefined = use server, null = explicitly unfollowed
-  let localFollowStatus = $state<FollowsResponse | null | undefined>(undefined);
-
   let loading = $state(false);
-
-  // Reset local state when server data changes
-  $effect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    serverFollowStatus; // Track dependency
-    localFollowStatus = undefined;
-  });
-
-  // Use local state for optimistic updates, fallback to server data
-  const effectiveFollowStatus = $derived(
-    localFollowStatus === undefined ? serverFollowStatus : localFollowStatus,
-  );
 
   async function handleFollow() {
     if (!profileUser) return;
     loading = true;
 
     try {
-      // Create a follow request
-      const newFollow = await pb.collection("follows").create<FollowsResponse>({
-        follower: pb.authStore.model?.id,
-        following: profileUser.id,
-        accepted: profileUser.isPublic ? true : false, // Auto-accept if profile is public
-      });
-      localFollowStatus = newFollow;
-      await invalidateAll();
+      await followUser(profileUser);
     } catch (error) {
       console.error("Failed to follow:", error);
     } finally {
@@ -60,12 +39,11 @@
   }
 
   async function handleUnfollow() {
-    if (!effectiveFollowStatus) return;
+    if (!followStatus) return;
     loading = true;
 
     try {
-      await pb.collection("follows").delete(effectiveFollowStatus.id);
-      localFollowStatus = null;
+      await pb.collection("follows").delete(followStatus.id);
       await invalidateAll();
     } catch (error) {
       console.error("Failed to unfollow:", error);
@@ -74,21 +52,10 @@
     }
   }
 
-  function getFollowButtonText() {
-    if (!effectiveFollowStatus) return "Follow";
-    if (effectiveFollowStatus.accepted) return "Following";
-    return "Requested";
-  }
-
-  function getFollowButtonVariant(): "default" | "outline" | "secondary" {
-    if (!effectiveFollowStatus) return "default";
-    return "secondary";
-  }
+  const avatarUrl = $derived(getUserAvatarUrl(profileUser, "320x320"));
 
   const canViewPosts = $derived(
-    isOwnProfile ||
-      profileUser?.isPublic ||
-      (effectiveFollowStatus && effectiveFollowStatus.accepted),
+    isOwnProfile || profileUser?.isPublic || followStatus?.accepted,
   );
 </script>
 
@@ -104,12 +71,8 @@
     <div
       class="bg-muted mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full"
     >
-      {#if getUserAvatarUrl(profileUser, "320x320")}
-        <img
-          src={getUserAvatarUrl(profileUser, "320x320")}
-          alt="Profile"
-          class="h-full w-full object-cover"
-        />
+      {#if avatarUrl}
+        <img src={avatarUrl} alt="Profile" class="h-full w-full object-cover" />
       {:else}
         <span class="icon-[lucide--user] text-muted-foreground h-10 w-10"
         ></span>
@@ -130,21 +93,21 @@
 
     {#if canViewPosts}
       <div class="mt-4">
-        <p class="text-lg font-semibold">{posts.length}</p>
+        <p class="text-lg font-semibold">{postsCount}</p>
         <p class="text-muted-foreground text-sm">Posts</p>
       </div>
     {/if}
 
     {#if !isOwnProfile}
       <div class="mt-4">
-        {#if effectiveFollowStatus}
+        {#if followStatus}
           <Button
-            variant={getFollowButtonVariant()}
+            variant="secondary"
             size="sm"
             onclick={handleUnfollow}
             disabled={loading}
           >
-            {getFollowButtonText()}
+            {followStatus.accepted ? "Following" : "Requested"}
           </Button>
         {:else}
           <Button size="sm" onclick={handleFollow} disabled={loading}>

@@ -16,6 +16,7 @@
   const posts = $derived(
     data.posts as PostsResponse<{ user: UsersResponse }>[],
   );
+  const postsCount = $derived(data.postsCount);
   const followersCount = $derived(data.followersCount);
   const followingCount = $derived(data.followingCount);
   const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
@@ -26,6 +27,7 @@
   let savingProfile = $state(false);
   let editName = $state("");
   let editBio = $state("");
+  let profileError = $state("");
 
   async function handleAvatarChange(e: Event) {
     const input = e.target as HTMLInputElement;
@@ -49,12 +51,14 @@
   function startEditing() {
     editName = user?.name || "";
     editBio = user?.bio || "";
+    profileError = "";
     editing = true;
   }
 
   async function saveProfile() {
     if (!user) return;
     savingProfile = true;
+    profileError = "";
     try {
       await pb
         .collection("users")
@@ -64,6 +68,7 @@
       await invalidateAll();
     } catch (error) {
       console.error("Failed to update profile:", error);
+      profileError = "Could not save your profile. Please try again.";
     } finally {
       savingProfile = false;
     }
@@ -128,6 +133,9 @@
           class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring mt-1 flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         ></textarea>
       </div>
+      {#if profileError}
+        <p class="text-destructive text-sm">{profileError}</p>
+      {/if}
       <div class="flex gap-2">
         <Button
           variant="outline"
@@ -153,7 +161,7 @@
 <!-- Stats -->
 <div class="mt-6 flex justify-center gap-2">
   <div class="w-20 text-center">
-    <p class="text-lg font-semibold">{posts.length}</p>
+    <p class="text-lg font-semibold">{postsCount}</p>
     <p class="text-muted-foreground text-sm">Posts</p>
   </div>
   <a

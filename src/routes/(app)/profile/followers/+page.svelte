@@ -8,29 +8,24 @@
 
   let { data } = $props();
   const followers = $derived(data.followers as FollowWithUser[]);
-  const initialFollowingIds = $derived(data.followingIds as string[]);
+  // followUser() reloads page data, so these always reflect the server state
+  const followingIds = $derived(data.followingIds as string[]);
   const pendingFollowingIds = $derived(data.pendingFollowingIds as string[]);
-
-  // Track locally added follows (for optimistic UI update)
-  let addedFollowIds = $state<string[]>([]);
 
   let loadingFollow = $state<string | null>(null);
 
   function isFollowing(userId: string) {
-    return (
-      initialFollowingIds.includes(userId) || addedFollowIds.includes(userId)
-    );
+    return followingIds.includes(userId);
   }
 
   function isPendingRequest(userId: string) {
     return pendingFollowingIds.includes(userId);
   }
 
-  async function handleFollowBack(userId: string) {
-    loadingFollow = userId;
+  async function handleFollowBack(user: UsersResponse) {
+    loadingFollow = user.id;
     try {
-      await followUser(userId);
-      addedFollowIds = [...addedFollowIds, userId];
+      await followUser(user);
     } catch (error) {
       console.error("Failed to follow back:", error);
     } finally {
@@ -69,7 +64,7 @@
               {:else}
                 <Button
                   size="sm"
-                  onclick={() => handleFollowBack(followerUser.id)}
+                  onclick={() => handleFollowBack(followerUser)}
                   disabled={loadingFollow === followerUser.id}
                 >
                   {#if loadingFollow === followerUser.id}

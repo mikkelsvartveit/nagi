@@ -15,9 +15,12 @@
   let {
     post,
     likedPostIds = new Set<string>(),
+    onDeleted = invalidateAll,
   }: {
     post: PostsResponse<{ user: UsersResponse }>;
     likedPostIds?: Set<string>;
+    /** Called after a successful delete. Defaults to reloading page data. */
+    onDeleted?: () => Promise<void>;
   } = $props();
   const postUser = $derived(post.expand?.user as UsersResponse | undefined);
   const currentUser = $derived(pb.authStore.model);
@@ -50,7 +53,7 @@
     try {
       await pb.collection("posts").delete(post.id);
       deleteDialogOpen = false;
-      await invalidateAll();
+      await onDeleted();
     } catch (err) {
       console.error("Failed to delete post:", err);
     } finally {

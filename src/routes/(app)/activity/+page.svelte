@@ -11,42 +11,49 @@
   import { formatDate } from "$lib/utils";
   import { SvelteSet } from "svelte/reactivity";
   import { followUser } from "$lib/useFollowActions";
+  import type { UsersResponse } from "$lib/pocketbase-typegen";
 
   let { data } = $props();
   const pendingRequests = $derived(data.pendingRequests as FollowWithUser[]);
   const recentFollows = $derived(data.recentFollows as FollowWithUser[]);
   const recentLikes = $derived(data.recentLikes as LikeWithExpand[]);
-  const initialFollowingIds = $derived(data.followingIds as string[]);
+  // followUser() reloads page data, so these always reflect the server state
+  const followingIds = $derived(data.followingIds as string[]);
   const pendingFollowingIds = $derived(data.pendingFollowingIds as string[]);
   const unreadLikeIds = $derived(data.unreadLikeIds as string[]);
   const unreadFollowIds = $derived(data.unreadFollowIds as string[]);
 
+  // IDs we've already tried to mark as read. Non-reactive on purpose: every
+  // invalidateAll() produces fresh arrays, and without this a failing update
+  // would be retried (and re-invalidated) in an endless loop.
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- must not be tracked by the effect
+  const attemptedReadIds = new Set<string>();
+
   // Mark unread items as read when the page mounts, then refresh the layout badge
   $effect(() => {
-    const likeIds = unreadLikeIds;
-    const followIds = unreadFollowIds;
-    if (likeIds.length === 0 && followIds.length === 0) return;
+    const allIds = [
+      ...unreadLikeIds.map((id) => ({ id, collection: "likes" as const })),
+      ...unreadFollowIds.map((id) => ({ id, collection: "follows" as const })),
+    ].filter(({ id }) => !attemptedReadIds.has(id));
+    if (allIds.length === 0) return;
+    for (const { id } of allIds) attemptedReadIds.add(id);
 
     const markAsRead = async () => {
       // Process in batches of 5 to avoid overwhelming the browser
       const chunkSize = 5;
-      const allIds = [
-        ...likeIds.map((id) => ({ id, collection: "likes" as const })),
-        ...followIds.map((id) => ({ id, collection: "follows" as const })),
-      ];
+      let anySucceeded = false;
 
       for (let i = 0; i < allIds.length; i += chunkSize) {
         const chunk = allIds.slice(i, i + chunkSize);
-        await Promise.all(
+        const results = await Promise.allSettled(
           chunk.map(({ id, collection }) =>
-            pb
-              .collection(collection)
-              .update(id, { read: true })
-              .catch(() => {}),
+            pb.collection(collection).update(id, { read: true }),
           ),
         );
+        if (results.some((r) => r.status === "fulfilled")) anySucceeded = true;
       }
-      await invalidateAll();
+
+      if (anySucceeded) await invalidateAll();
     };
 
     markAsRead();
@@ -58,14 +65,10 @@
   let acceptedRequests = $state<FollowWithUser[]>([]);
   // Track declined request IDs so we can hide them
   const declinedIds = new SvelteSet<string>();
-  // Track users we've followed back (for optimistic UI)
-  let followedBackIds = $state<string[]>([]);
   let loadingFollowBack = $state<string | null>(null);
 
   function isFollowing(userId: string) {
-    return (
-      initialFollowingIds.includes(userId) || followedBackIds.includes(userId)
-    );
+    return followingIds.includes(userId);
   }
 
   function isPendingRequest(userId: string) {
@@ -100,11 +103,10 @@
     }
   }
 
-  async function handleFollowBack(userId: string) {
-    loadingFollowBack = userId;
+  async function handleFollowBack(user: UsersResponse) {
+    loadingFollowBack = user.id;
     try {
-      await followUser(userId);
-      followedBackIds = [...followedBackIds, userId];
+      await followUser(user);
     } catch (error) {
       console.error("Failed to follow back:", error);
     } finally {
