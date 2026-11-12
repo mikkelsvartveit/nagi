@@ -6,6 +6,7 @@
   import { Input } from "$lib/components/ui/input";
   import { Label } from "$lib/components/ui/label";
   import * as Card from "$lib/components/ui/card";
+  import BrandMark from "$lib/components/BrandMark.svelte";
 
   let email = $state("");
   let password = $state("");
@@ -47,19 +48,7 @@
 
 <div class="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
   <div class="w-full max-w-sm">
-    <!-- Logo/Brand -->
-    <div class="mb-8 text-center">
-      <div
-        class="bg-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"
-      >
-        <span class="icon-[lucide--image] text-primary-foreground h-8 w-8"
-        ></span>
-      </div>
-      <h1 class="text-2xl font-bold tracking-tight">Welcome back</h1>
-      <p class="text-muted-foreground mt-1 text-sm">
-        Sign in to your Nagi account
-      </p>
-    </div>
+    <BrandMark title="Welcome back" tagline="Sign in to your Nagi account" />
 
     <!-- Login Form -->
     <Card.Root>
