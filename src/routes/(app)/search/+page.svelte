@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ClientResponseError } from "pocketbase";
   import UserListItem from "$lib/components/UserListItem.svelte";
   import { pb } from "$lib/pocketbase";
   import { Button } from "$lib/components/ui/button";
@@ -12,13 +13,8 @@
 
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /** Escape special PocketBase filter characters to prevent query injection */
-  function sanitizeFilterValue(value: string): string {
-    return value.replace(/["'\\]/g, "").trim();
-  }
-
   async function searchUsers() {
-    const searchQuery = sanitizeFilterValue(query.trim());
+    const searchQuery = query.trim();
     if (!searchQuery) {
       results = [];
       hasSearched = false;
@@ -32,11 +28,16 @@
       const searchResults = await pb
         .collection("users")
         .getList<UsersResponse>(1, 20, {
-          filter: `username ~ "${searchQuery}" || name ~ "${searchQuery}"`,
+          // Bound parameters are escaped by the SDK, so quotes in the query are safe
+          filter: pb.filter("username ~ {:q} || name ~ {:q}", {
+            q: searchQuery,
+          }),
           sort: "username",
         });
       results = searchResults.items;
     } catch (error) {
+      // A newer keystroke auto-cancelled this request; let that one win
+      if (error instanceof ClientResponseError && error.isAbort) return;
       console.error("Search failed:", error);
       results = [];
     } finally {
