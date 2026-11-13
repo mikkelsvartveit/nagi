@@ -6,6 +6,7 @@
   import Post from "$lib/components/Post.svelte";
   import ProfileAvatarEditor from "./ProfileAvatarEditor.svelte";
   import ProfileTopBar from "./ProfileTopBar.svelte";
+  import AccountDataSettings from "./AccountDataSettings.svelte";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
   import { Switch } from "$lib/components/ui/switch";
@@ -188,6 +189,10 @@
     />
   </div>
 </div>
+
+{#if user}
+  <AccountDataSettings {user} />
+{/if}
 
 <!-- Posts -->
 {#if posts.length === 0}
