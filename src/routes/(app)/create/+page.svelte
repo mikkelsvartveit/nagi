@@ -8,9 +8,22 @@
   import { Label } from "$lib/components/ui/label";
   import { Progress } from "$lib/components/ui/progress";
   import { Textarea } from "$lib/components/ui/textarea";
+  import type { PocketBaseError } from "$lib/pocketbase";
   import type { Create } from "$lib/pocketbase-typegen";
 
-  type FieldErrors = Partial<Record<keyof Create<"posts">, string>>;
+  type FieldErrors = Partial<Record<keyof Create<"posts"> | "general", string>>;
+
+  /** Fields that have their own error slot in the form. */
+  const DISPLAYED_FIELDS = ["images", "caption", "location"] as const;
+
+  class UploadError extends Error {
+    data: PocketBaseError["data"];
+
+    constructor(message: string, data: PocketBaseError["data"] = {}) {
+      super(message);
+      this.data = data;
+    }
+  }
 
   let caption = $state("");
   let location = $state("");
@@ -103,16 +116,10 @@
   }
 
   const validateForm = (): boolean => {
-    const newErrors: FieldErrors = { ...errors };
-
-    if (images.length === 0) {
-      newErrors.images = "At least one image is required";
-    } else {
-      delete newErrors.images;
-    }
-
-    errors = newErrors;
-    return Object.keys(newErrors).length === 0;
+    // Start fresh so stale server errors from a previous attempt don't block resubmitting.
+    errors =
+      images.length === 0 ? { images: "At least one image is required" } : {};
+    return Object.keys(errors).length === 0;
   };
 
   const uploadWithProgress = (formData: FormData): Promise<void> => {
@@ -128,13 +135,32 @@
       xhr.addEventListener("load", () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve();
-        } else {
-          reject(new Error(`Upload failed with status ${xhr.status}`));
+          return;
         }
+
+        // PocketBase error bodies look like { status, message, data }.
+        // Proxies (e.g. a 413 from nginx) may return non-JSON, so fall back.
+        let body: { message?: string; data?: PocketBaseError["data"] } = {};
+        try {
+          body = JSON.parse(xhr.responseText);
+        } catch {
+          // not JSON
+        }
+
+        reject(
+          new UploadError(
+            body.message || `Upload failed (${xhr.status})`,
+            body.data,
+          ),
+        );
       });
 
       xhr.addEventListener("error", () => {
-        reject(new Error("Upload failed"));
+        reject(
+          new UploadError(
+            "Network error. Check your connection and try again.",
+          ),
+        );
       });
 
       xhr.open("POST", pb.buildURL("/api/collections/posts/records"));
@@ -148,6 +174,31 @@
     });
   };
 
+  const toFieldErrors = (err: unknown): FieldErrors => {
+    if (!(err instanceof UploadError)) {
+      return { general: "Failed to create post. Please try again." };
+    }
+
+    const result: FieldErrors = {};
+    const otherMessages: string[] = [];
+
+    for (const [field, fieldError] of Object.entries(err.data ?? {})) {
+      if ((DISPLAYED_FIELDS as readonly string[]).includes(field)) {
+        result[field as (typeof DISPLAYED_FIELDS)[number]] = fieldError.message;
+      } else {
+        otherMessages.push(`${field}: ${fieldError.message}`);
+      }
+    }
+
+    if (otherMessages.length > 0) {
+      result.general = otherMessages.join(" ");
+    } else if (Object.keys(result).length === 0) {
+      result.general = err.message;
+    }
+
+    return result;
+  };
+
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
 
@@ -155,11 +206,10 @@
 
     loading = true;
     uploadProgress = 0;
-    errors = {};
 
     const user = pb.authStore.model;
     if (!user) {
-      errors = { images: "You must be logged in to create a post." };
+      errors = { general: "You must be logged in to create a post." };
       loading = false;
       return;
     }
@@ -178,7 +228,7 @@
       goto(resolve("/"));
     } catch (err: unknown) {
       console.error("Failed to create post:", err);
-      errors = { images: "Failed to create post. Please try again." };
+      errors = toFieldErrors(err);
     } finally {
       loading = false;
     }
@@ -214,7 +264,11 @@
           bind:value={caption}
           placeholder="Write a caption..."
           rows={3}
+          aria-invalid={errors.caption ? true : undefined}
         />
+        {#if errors.caption}
+          <p class="text-destructive text-sm">{errors.caption}</p>
+        {/if}
       </div>
 
       <div class="space-y-2">
@@ -224,7 +278,11 @@
           type="text"
           bind:value={location}
           placeholder="Add location"
+          aria-invalid={errors.location ? true : undefined}
         />
+        {#if errors.location}
+          <p class="text-destructive text-sm">{errors.location}</p>
+        {/if}
       </div>
 
       {#if loading}
@@ -237,6 +295,9 @@
           </div>
           <Progress value={uploadProgress} max={100} />
         </div>
+      {/if}
+      {#if errors.general}
+        <p class="text-destructive text-sm" role="alert">{errors.general}</p>
       {/if}
       <Button
         type="submit"
