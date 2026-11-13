@@ -22,6 +22,8 @@
 
   const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
   const MAX_IMAGES = 10;
+  // Must match the `max` on the posts.caption field in PocketBase
+  const MAX_CAPTION_LENGTH = 2200;
 
   function handleImageSelect(e: Event) {
     const input = e.target as HTMLInputElement;
@@ -213,8 +215,16 @@
           id="caption"
           bind:value={caption}
           placeholder="Write a caption..."
+          maxlength={MAX_CAPTION_LENGTH}
+          aria-describedby="caption-count"
           rows={3}
         />
+        <p
+          id="caption-count"
+          class="text-muted-foreground text-right text-xs tabular-nums"
+        >
+          {caption.length}/{MAX_CAPTION_LENGTH}
+        </p>
       </div>
 
       <div class="space-y-2">
