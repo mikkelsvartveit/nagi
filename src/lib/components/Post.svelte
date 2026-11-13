@@ -6,6 +6,7 @@
   import { formatDate } from "$lib/utils";
   import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+  import EditPostDialog from "$lib/components/EditPostDialog.svelte";
   import type {
     LikesResponse,
     PostsResponse,
@@ -27,6 +28,7 @@
   let isHovering = $state(false);
   let carouselEl: HTMLDivElement | undefined = $state();
   let deleteDialogOpen = $state(false);
+  let editDialogOpen = $state(false);
   let deleting = $state(false);
 
   // Like state
@@ -199,6 +201,10 @@
           <span class="icon-[lucide--ellipsis-vertical] h-5 w-5"></span>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content align="end">
+          <DropdownMenu.Item onclick={() => (editDialogOpen = true)}>
+            <span class="icon-[lucide--pencil] mr-2 h-4 w-4"></span>
+            Edit post
+          </DropdownMenu.Item>
           <DropdownMenu.Item
             class="text-destructive! hover:text-destructive! focus:text-destructive!"
             onclick={() => (deleteDialogOpen = true)}
@@ -326,6 +332,10 @@
     <!-- Date -->
     <p class="text-muted-foreground text-xs">{formatPostDate(post.created)}</p>
   </div>
+
+  {#if isOwner}
+    <EditPostDialog {post} bind:open={editDialogOpen} />
+  {/if}
 
   <!-- Delete confirmation dialog -->
   <AlertDialog.Root bind:open={deleteDialogOpen}>
