@@ -23,17 +23,13 @@
   const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
   const MAX_IMAGES = 10;
 
-  function handleImageSelect(e: Event) {
-    const input = e.target as HTMLInputElement;
-    const files = input.files;
-
-    if (!files || files.length === 0) return;
+  function addImages(files: File[]) {
+    if (files.length === 0) return;
 
     // Check total count
     const totalImages = images.length + files.length;
     if (totalImages > MAX_IMAGES) {
       errors = { ...errors, images: `Maximum ${MAX_IMAGES} images allowed` };
-      input.value = "";
       return;
     }
 
@@ -41,7 +37,7 @@
     const invalidFiles: string[] = [];
     const validFiles: File[] = [];
 
-    for (const file of Array.from(files)) {
+    for (const file of files) {
       if (file.size > MAX_FILE_SIZE) {
         invalidFiles.push(file.name);
       } else if (!file.type.startsWith("image/")) {
@@ -65,8 +61,6 @@
 
     images = [...images, ...validFiles];
     imagePreviews = [...imagePreviews, ...newPreviews];
-
-    input.value = "";
   }
 
   function removeImage(index: number) {
@@ -81,25 +75,18 @@
     }
   }
 
-  function reorderImage(index: number, direction: -1 | 1) {
-    const targetIndex = index + direction;
+  /** Move the image at `from` to position `to`, shifting the ones between. */
+  function moveImage(from: number, to: number) {
+    if (from === to || to < 0 || to >= images.length) return;
 
-    if (targetIndex < 0 || targetIndex >= images.length) return;
+    const move = <T,>(list: T[]) => {
+      const next = [...list];
+      next.splice(to, 0, ...next.splice(from, 1));
+      return next;
+    };
 
-    const nextImages = [...images];
-    const nextPreviews = [...imagePreviews];
-
-    [nextImages[index], nextImages[targetIndex]] = [
-      nextImages[targetIndex],
-      nextImages[index],
-    ];
-    [nextPreviews[index], nextPreviews[targetIndex]] = [
-      nextPreviews[targetIndex],
-      nextPreviews[index],
-    ];
-
-    images = nextImages;
-    imagePreviews = nextPreviews;
+    images = move(images);
+    imagePreviews = move(imagePreviews);
   }
 
   const validateForm = (): boolean => {
@@ -202,9 +189,9 @@
         {imagePreviews}
         maxImages={MAX_IMAGES}
         imageError={errors.images}
-        onSelectImages={handleImageSelect}
+        onAddImages={addImages}
         onRemoveImage={removeImage}
-        onReorderImage={reorderImage}
+        onMoveImage={moveImage}
       />
 
       <div class="space-y-2">
