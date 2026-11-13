@@ -98,8 +98,8 @@ export type SuperusersRecord = {
 export type FollowsRecord = {
 	accepted?: boolean
 	created: IsoAutoDateString
-	follower?: RecordIdString
-	following?: RecordIdString
+	follower: RecordIdString
+	following: RecordIdString
 	id: string
 	read?: boolean
 	updated: IsoAutoDateString
