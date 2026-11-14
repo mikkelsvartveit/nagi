@@ -6,6 +6,7 @@
     images,
     imagePreviews,
     maxImages,
+    processing = false,
     imageError,
     onSelectImages,
     onRemoveImage,
@@ -14,6 +15,7 @@
     images: File[];
     imagePreviews: string[];
     maxImages: number;
+    processing?: boolean;
     imageError?: string;
     onSelectImages: (e: Event) => void;
     onRemoveImage: (index: number) => void;
@@ -76,7 +78,19 @@
     </div>
   {/if}
 
-  {#if images.length < maxImages}
+  {#if processing}
+    <div
+      class="border-input flex h-32 flex-col items-center justify-center gap-2 rounded-md border border-dashed"
+      role="status"
+    >
+      <span
+        class="icon-[lucide--loader-2] text-muted-foreground h-6 w-6 animate-spin"
+      ></span>
+      <span class="text-muted-foreground text-sm font-medium"
+        >Preparing photos...</span
+      >
+    </div>
+  {:else if images.length < maxImages}
     <div>
       <Label
         for="images-input"

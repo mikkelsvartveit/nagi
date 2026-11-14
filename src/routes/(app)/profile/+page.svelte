@@ -2,6 +2,7 @@
   import { goto, invalidateAll } from "$app/navigation";
   import EmptyStateCard from "$lib/components/EmptyStateCard.svelte";
   import { resolve } from "$app/paths";
+  import { compressImage } from "$lib/image-compression";
   import { pb } from "$lib/pocketbase";
   import Post from "$lib/components/Post.svelte";
   import ProfileAvatarEditor from "./ProfileAvatarEditor.svelte";
@@ -20,6 +21,9 @@
   const followingCount = $derived(data.followingCount);
   const likedPostIds = $derived(new Set(data.likedPostIds as string[]));
 
+  // Avatars are displayed at 320x320 at most
+  const MAX_AVATAR_DIMENSION = 1024;
+
   let uploading = $state(false);
   let updatingPrivacy = $state(false);
   let editing = $state(false);
@@ -30,12 +34,16 @@
   async function handleAvatarChange(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
+    input.value = "";
     if (!file || !user) return;
 
     uploading = true;
     try {
+      const avatar = await compressImage(file, {
+        maxDimension: MAX_AVATAR_DIMENSION,
+      });
       const formData = new FormData();
-      formData.append("avatar", file);
+      formData.append("avatar", avatar);
 
       await pb.collection("users").update(user.id, formData);
       await invalidateAll();
