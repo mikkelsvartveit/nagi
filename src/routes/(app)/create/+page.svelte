@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { resolve } from "$app/paths";
   import CreatePostImagePicker from "./CreatePostImagePicker.svelte";
+  import { compressImage } from "$lib/image-compression";
   import { pb } from "$lib/pocketbase";
   import { Button } from "$lib/components/ui/button";
   import { Input } from "$lib/components/ui/input";
@@ -17,38 +18,55 @@
   let images = $state<File[]>([]);
   let imagePreviews = $state<string[]>([]);
   let loading = $state(false);
+  let processing = $state(false);
   let uploadProgress = $state(0);
   let errors = $state<FieldErrors>({});
 
-  const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+  // Must match the `maxSize` on the posts.images field in PocketBase
+  const MAX_FILE_SIZE = 15_000_000;
+  // Longest edge after client-side resizing; posts are displayed at 1080px wide
+  const MAX_IMAGE_DIMENSION = 2048;
   const MAX_IMAGES = 10;
 
-  function handleImageSelect(e: Event) {
+  async function handleImageSelect(e: Event) {
     const input = e.target as HTMLInputElement;
-    const files = input.files;
+    const files = Array.from(input.files ?? []);
+    input.value = "";
 
-    if (!files || files.length === 0) return;
+    if (files.length === 0) return;
 
     // Check total count
     const totalImages = images.length + files.length;
     if (totalImages > MAX_IMAGES) {
       errors = { ...errors, images: `Maximum ${MAX_IMAGES} images allowed` };
-      input.value = "";
       return;
     }
 
-    // Validate file sizes
+    processing = true;
     const invalidFiles: string[] = [];
     const validFiles: File[] = [];
 
-    for (const file of Array.from(files)) {
-      if (file.size > MAX_FILE_SIZE) {
-        invalidFiles.push(file.name);
-      } else if (!file.type.startsWith("image/")) {
-        invalidFiles.push(file.name);
-      } else {
-        validFiles.push(file);
+    try {
+      // One at a time: decoding several full-size camera photos at once can
+      // exhaust memory on phones.
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) {
+          invalidFiles.push(file.name);
+          continue;
+        }
+
+        const compressed = await compressImage(file, {
+          maxDimension: MAX_IMAGE_DIMENSION,
+        });
+
+        if (compressed.size > MAX_FILE_SIZE) {
+          invalidFiles.push(file.name);
+        } else {
+          validFiles.push(compressed);
+        }
       }
+    } finally {
+      processing = false;
     }
 
     if (invalidFiles.length > 0) {
@@ -65,8 +83,6 @@
 
     images = [...images, ...validFiles];
     imagePreviews = [...imagePreviews, ...newPreviews];
-
-    input.value = "";
   }
 
   function removeImage(index: number) {
@@ -201,6 +217,7 @@
         {images}
         {imagePreviews}
         maxImages={MAX_IMAGES}
+        {processing}
         imageError={errors.images}
         onSelectImages={handleImageSelect}
         onRemoveImage={removeImage}
@@ -241,7 +258,7 @@
       <Button
         type="submit"
         class="w-full"
-        disabled={loading || images.length === 0}
+        disabled={loading || processing || images.length === 0}
       >
         {#if loading}
           <span class="icon-[lucide--loader-2] mr-2 h-4 w-4 animate-spin"
